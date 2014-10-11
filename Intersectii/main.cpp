@@ -14,10 +14,10 @@ using namespace std;
 class CustomPoint : public Point2D {
 public :
 	int SegmentIndex;
-	CustomPoint(const Point2D & point, int segmentIndex) :
-		Point2D(point.X, point.Y), SegmentIndex(segmentIndex){}
+	bool Side;
+	CustomPoint(const Point2D & point, bool side, int segmentIndex) :
+		Point2D(point.X, point.Y), SegmentIndex(segmentIndex), Side(side){}
 };
-
 
 void DrawIntersections(const vector<Segment> & lines)
 {
@@ -27,8 +27,8 @@ void DrawIntersections(const vector<Segment> & lines)
 
 	for (unsigned int i = 0; i < lines.size(); i++)
 	{
-		allPoints.push_back(CustomPoint(lines[i].LeftPoint, i));
-		allPoints.push_back(CustomPoint(lines[i].RightPoint, i));
+		allPoints.push_back(CustomPoint(lines[i].LeftPoint, false, i));
+		allPoints.push_back(CustomPoint(lines[i].RightPoint, true, i));
 		glLineWidth(2.0f);
 		glColor3f(0.0f,0.0f,1.0f);
 		glBegin(GL_LINES);
@@ -36,7 +36,10 @@ void DrawIntersections(const vector<Segment> & lines)
 		glVertex2f(lines[i].RightPoint.X, lines[i].RightPoint.Y);
 		glEnd();
 	}
-	sort(allPoints.begin(), allPoints.end());
+	sort(allPoints.begin(), allPoints.end(), [](const CustomPoint & point1, const CustomPoint & point2) {
+		if (point1 == point2) { return point1.Side < point2.Side; }
+		return point1 < point2;
+	});
 
 	for (unsigned int pointIndex = 0; pointIndex < allPoints.size(); pointIndex++)
 	{
@@ -48,11 +51,7 @@ void DrawIntersections(const vector<Segment> & lines)
 			// Check intersection with all the segments.
 			for (auto segmentsMapIterator : segmentsMap)
 			{
-				if (currentLine->Intersects(*segmentsMapIterator.second) &&
-					currentLine->LeftPoint != (*segmentsMapIterator.second).RightPoint &&
-					currentLine->RightPoint != (*segmentsMapIterator.second).RightPoint &&
-					currentLine->LeftPoint != (*segmentsMapIterator.second).LeftPoint &&
-					currentLine->RightPoint != (*segmentsMapIterator.second).LeftPoint)
+				if (currentLine->Intersects(*segmentsMapIterator.second))
 				{
 					Point2D intersectionPoint = currentLine->IntersectionPoint(*segmentsMapIterator.second);
 					glPointSize(8.0f);
@@ -74,15 +73,15 @@ void DrawIntersections(const vector<Segment> & lines)
 void Render(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	vector<Segment> segments;
 
+	vector<Segment> segments;
 
 	float lastX = rand() % (int)WindowWidth;
 	float lastY = rand() % (int)WindowHeight;
 	float firstX = lastX;
 	float firstY = lastY;
 
-	for (int i = 0; i < 10; i ++)
+	for (int i = 0; i < 15; i ++)
 	{
 		float newX = rand() % (int)WindowWidth;
 		float newY = rand() % (int)WindowHeight;
