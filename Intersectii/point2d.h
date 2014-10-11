@@ -7,5 +7,9 @@ public :
 	float Y;
 	bool operator==(const Point2D & other) const;
 	bool operator<(const Point2D & other) const;
+	bool operator>(const Point2D & other) const;
+	bool operator<=(const Point2D & other) const;
+	bool operator>=(const Point2D & other) const;
+	bool operator!=(const Point2D & other) const;
 
 };

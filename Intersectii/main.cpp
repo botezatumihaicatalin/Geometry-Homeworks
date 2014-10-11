@@ -30,7 +30,7 @@ void DrawIntersections(const vector<Segment> & lines)
 		allPoints.push_back(CustomPoint(lines[i].LeftPoint, i));
 		allPoints.push_back(CustomPoint(lines[i].RightPoint, i));
 		glLineWidth(2.0f);
-		glColor3f(0.0f,0.0f,0.0f);
+		glColor3f(0.0f,0.0f,1.0f);
 		glBegin(GL_LINES);
 		glVertex2f(lines[i].LeftPoint.X, lines[i].LeftPoint.Y);
 		glVertex2f(lines[i].RightPoint.X, lines[i].RightPoint.Y);
@@ -48,7 +48,11 @@ void DrawIntersections(const vector<Segment> & lines)
 			// Check intersection with all the segments.
 			for (auto segmentsMapIterator : segmentsMap)
 			{
-				if (currentLine->Intersects(*(segmentsMapIterator.second)))
+				if (currentLine->Intersects(*segmentsMapIterator.second) &&
+					currentLine->LeftPoint != (*segmentsMapIterator.second).RightPoint &&
+					currentLine->RightPoint != (*segmentsMapIterator.second).RightPoint &&
+					currentLine->LeftPoint != (*segmentsMapIterator.second).LeftPoint &&
+					currentLine->RightPoint != (*segmentsMapIterator.second).LeftPoint)
 				{
 					Point2D intersectionPoint = currentLine->IntersectionPoint(*segmentsMapIterator.second);
 					glPointSize(8.0f);
@@ -71,10 +75,24 @@ void Render(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	vector<Segment> segments;
-	segments.push_back(Segment(Point2D(0.0f,0.0f),Point2D(600.0f,600.0f)));
-	segments.push_back(Segment(Point2D(600.0f,100.0f),Point2D(0.0f,600.0f)));
-	segments.push_back(Segment(Point2D(0.0f,500.0f),Point2D(800.0f,500.0f)));
-	segments.push_back(Segment(Point2D(800.0f,500.0f),Point2D(0.0f,0.0f)));
+
+
+	float lastX = rand() % (int)WindowWidth;
+	float lastY = rand() % (int)WindowHeight;
+	float firstX = lastX;
+	float firstY = lastY;
+
+	for (int i = 0; i < 10; i ++)
+	{
+		float newX = rand() % (int)WindowWidth;
+		float newY = rand() % (int)WindowHeight;
+		segments.push_back(Segment(Point2D(lastX,lastY),Point2D(newX,newY)));
+		lastX = newX;
+		lastY = newY;
+	}
+
+	segments.push_back(Segment(Point2D(lastX,lastY),Point2D(firstX,firstY)));
+
 	DrawIntersections(segments);
 	glutSwapBuffers();
 }
