@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-Wall
 STDVERSION=c++0x
 LINKS=-lGL -lGLU -lglut
-SOURCES=main.cpp point2d.cpp segment.cpp
+SOURCES=main.cpp point2d.cpp segment.cpp scene.cpp
 EXECUTABLE=Intersectii
      
 all: 

@@ -13,7 +13,8 @@ bool Segment::Intersects(const Segment & otherSegment) const
 	float rightPositionCurrent = this->PointOnSegment(otherSegment.RightPoint);
 	float leftPositionOther = otherSegment.PointOnSegment(LeftPoint);
 	float rightPositionOther = otherSegment.PointOnSegment(RightPoint);
-	return (leftPositionCurrent * rightPositionCurrent <= 0 && leftPositionOther * rightPositionOther <= 0);
+	return (leftPositionCurrent * rightPositionCurrent <= 0 && leftPositionOther * rightPositionOther < 0) ||
+		   (leftPositionCurrent * rightPositionCurrent < 0 && leftPositionOther * rightPositionOther <= 0);
 }
 
 Point2D Segment::IntersectionPoint(const Segment & otherSegment) const

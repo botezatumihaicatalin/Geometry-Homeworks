@@ -2,8 +2,8 @@
 #include <GL/freeglut.h>
 #include <vector>
 #include <algorithm>
-#include "segment.h"
 #include <unordered_map>
+#include "scene.h"
 
 const float WindowHeight = 700.0f;
 const float WindowWidth = 1200.0f;
@@ -11,89 +11,17 @@ const float BackgroundColorRGBA[4] = {1.0f, 1.0f, 1.0f, 0.0f};
 
 using namespace std;
 
-class CustomPoint : public Point2D {
-public :
-	int SegmentIndex;
-	bool Side;
-	CustomPoint(const Point2D & point, bool side, int segmentIndex) :
-		Point2D(point.X, point.Y), SegmentIndex(segmentIndex), Side(side){}
-};
+float lastX = 0.0;
+float lastY = 0.0;
 
-void DrawIntersections(const vector<Segment> & lines)
+void MouseClick(int button, int state, int x , int y)
 {
-	vector<CustomPoint> allPoints;
-	// Map the pointers, so we don't waste space.
-	unordered_map<int, const Segment*> segmentsMap;
-
-	for (unsigned int i = 0; i < lines.size(); i++)
-	{
-		allPoints.push_back(CustomPoint(lines[i].LeftPoint, false, i));
-		allPoints.push_back(CustomPoint(lines[i].RightPoint, true, i));
-		glLineWidth(2.0f);
-		glColor3f(0.0f,0.0f,1.0f);
-		glBegin(GL_LINES);
-		glVertex2f(lines[i].LeftPoint.X, lines[i].LeftPoint.Y);
-		glVertex2f(lines[i].RightPoint.X, lines[i].RightPoint.Y);
-		glEnd();
-	}
-	sort(allPoints.begin(), allPoints.end(), [](const CustomPoint & point1, const CustomPoint & point2) {
-		if (point1 == point2) { return point1.Side < point2.Side; }
-		return point1 < point2;
-	});
-
-	for (unsigned int pointIndex = 0; pointIndex < allPoints.size(); pointIndex++)
-	{
-		// Check if the line is mapped.
-
-		if (segmentsMap.find(allPoints[pointIndex].SegmentIndex) == segmentsMap.end())
-		{
-			const Segment * currentLine = &lines[allPoints[pointIndex].SegmentIndex];
-			// Check intersection with all the segments.
-			for (auto segmentsMapIterator : segmentsMap)
-			{
-				if (currentLine->Intersects(*segmentsMapIterator.second))
-				{
-					Point2D intersectionPoint = currentLine->IntersectionPoint(*segmentsMapIterator.second);
-					glPointSize(8.0f);
-					glColor3f(1.0f,0.0f,0.0f);
-					glBegin(GL_POINTS);
-					glVertex2f(intersectionPoint.X,intersectionPoint.Y);
-					glEnd();
-				}
-			}
-			segmentsMap[allPoints[pointIndex].SegmentIndex] = currentLine;
-		} else
-		{
-			segmentsMap.erase(allPoints[pointIndex].SegmentIndex);
-		}
-	}
-
-}
-
-void Render(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	vector<Segment> segments;
-
-	float lastX = rand() % (int)WindowWidth;
-	float lastY = rand() % (int)WindowHeight;
-	float firstX = lastX;
-	float firstY = lastY;
-
-	for (int i = 0; i < 15; i ++)
-	{
-		float newX = rand() % (int)WindowWidth;
-		float newY = rand() % (int)WindowHeight;
-		segments.push_back(Segment(Point2D(lastX,lastY),Point2D(newX,newY)));
-		lastX = newX;
-		lastY = newY;
-	}
-
-	segments.push_back(Segment(Point2D(lastX,lastY),Point2D(firstX,firstY)));
-
-	DrawIntersections(segments);
-	glutSwapBuffers();
+	float newX = x;
+	float newY = WindowHeight - y;
+	Scene::Segments.push_back(Segment(Point2D(lastX,lastY),Point2D(newX,newY)));
+	lastX = newX;
+	lastY = newY;
+	Scene::Render();
 }
 
 void InitializeWindow(int argc, char ** argv)
@@ -107,9 +35,11 @@ void InitializeWindow(int argc, char ** argv)
 	glClearColor(BackgroundColorRGBA[0], BackgroundColorRGBA[1], BackgroundColorRGBA[2], BackgroundColorRGBA[3]);
 	glMatrixMode (GL_PROJECTION);
 	gluOrtho2D(0.0, WindowWidth, 0.0, WindowHeight);
+	glShadeModel(GL_SMOOTH);
 
 	glClear (GL_COLOR_BUFFER_BIT);
-	glutDisplayFunc(Render);
+	glutDisplayFunc(Scene::Render);
+	glutMouseFunc(MouseClick);
 	glutMainLoop ( );
 }
 
