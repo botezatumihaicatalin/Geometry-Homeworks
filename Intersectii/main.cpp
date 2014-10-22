@@ -11,17 +11,17 @@ const float BackgroundColorRGBA[4] = {1.0f, 1.0f, 1.0f, 0.0f};
 
 using namespace std;
 
-float lastX = 0.0;
-float lastY = 0.0;
+bool val = false;
 
 void MouseClick(int button, int state, int x , int y)
 {
-	float newX = x;
-	float newY = WindowHeight - y;
-	Scene::Segments.push_back(Segment(Point2D(lastX,lastY),Point2D(newX,newY)));
-	lastX = newX;
-	lastY = newY;
-	Scene::Render();
+	if (button ==  GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		float newX = x;
+		float newY = WindowHeight - y;
+		Scene::Points.push_back(Point2D(newX,newY));
+		Scene::Render();
+	}
 }
 
 void InitializeWindow(int argc, char ** argv)

@@ -1,49 +1,65 @@
 #include <GL/freeglut.h>
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
+#include <unordered_set>
 #include "scene.h"
 
 using namespace std;
 
-vector<Segment> Scene::Segments = {};
+vector<Point2D> Scene::Points = {};
 
 void Scene::Render(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	vector<Segment> localSegments(Scene::Segments);
 
-	if (localSegments.size() > 0)
+	if (Scene::Points.size() > 1)
 	{
-		localSegments.push_back(Segment(localSegments[localSegments.size() - 1].RightPoint,localSegments[0].LeftPoint));
+		vector<Segment> localSegments;
+		localSegments.reserve(Scene::Points.size());
+		if (Scene::Points.size() == 2)
+		{
+			localSegments.push_back(Segment(Points[0],Points[1]));
+		}
+		else
+		{
+			for (unsigned int pointIndex = 0; pointIndex < Scene::Points.size(); pointIndex++)
+			{
+				localSegments.push_back(Segment(Points[pointIndex],Points[(pointIndex + 1) % Points.size()]));
+			}
+		}
 		Scene::_DrawIntersections(localSegments);
 	}
+
+	Scene::_DrawPoints(Scene::Points);
 
 	glutSwapBuffers();
 }
 
+void Scene::_DrawPoints (const vector<Point2D> & points)
+{
+	for (unsigned int pointIndex = 0; pointIndex < Scene::Points.size(); pointIndex++)
+	{
+		glPointSize(8.0f);
+		glColor3f(0.0f,1.0f,0.0f);
+		glBegin(GL_POINTS);
+		glVertex2f(Points[pointIndex].X , Points[pointIndex].Y);
+		glEnd();
+	}
+}
+
 void Scene::_DrawIntersections (const vector<Segment> & lines)
 {
-	typedef pair<Point2D, int> CustomPoint;
-	vector<CustomPoint> allPoints;
+	vector<pair<Point2D, int>> allPoints;
 
-	// Map the pointers, so we don't waste space.
-	unordered_map<int, const Segment*> segmentsMap;
-	unordered_map<int, bool> indexesMap;
+	unordered_set<int> segmentIndexMap;
+	unordered_set<int> intersectedSegmentIndexMap;
 
 	for (unsigned int i = 0; i < lines.size(); i++)
 	{
 		allPoints.push_back(make_pair(lines[i].LeftPoint, i));
 		allPoints.push_back(make_pair(lines[i].RightPoint, i));
-
-		glPointSize(8.0f);
-		glColor3f(0.0f,1.0f,0.0f);
-		glBegin(GL_POINTS);
-		glVertex2f(lines[i].LeftPoint.X, lines[i].LeftPoint.Y);
-		glVertex2f(lines[i].RightPoint.X, lines[i].RightPoint.Y);
-		glEnd();
 	}
-	sort(allPoints.begin(), allPoints.end(), [](const CustomPoint & point1, const CustomPoint & point2) {
+	sort(allPoints.begin(), allPoints.end(), [](const pair<Point2D, int> & point1, const pair<Point2D, int> & point2) {
 		return point1.first <= point2.first;
 	});
 
@@ -51,32 +67,31 @@ void Scene::_DrawIntersections (const vector<Segment> & lines)
 	{
 		// Check if the line is mapped.
 
-		if (segmentsMap.find(allPoints[pointIndex].second) == segmentsMap.end())
+		if (segmentIndexMap.find(allPoints[pointIndex].second) == segmentIndexMap.end())
 		{
 			const Segment * currentLine = &lines[allPoints[pointIndex].second];
-
 			// Check intersection with all the segments.
-			for (auto segmentsMapIterator : segmentsMap)
+			for (const int & mappedIndex : segmentIndexMap)
 			{
-				if (currentLine->Intersects(*segmentsMapIterator.second))
+				if (currentLine->Intersects(lines[mappedIndex]))
 				{
-					Point2D intersectionPoint = currentLine->IntersectionPoint(*segmentsMapIterator.second);
+					Point2D intersectionPoint = currentLine->IntersectionPoint(lines[mappedIndex]);
 					glPointSize(8.0f);
 					glColor3f(1.0f,0.0f,0.0f);
 					glBegin(GL_POINTS);
 					glVertex2f(intersectionPoint.X,intersectionPoint.Y);
 					glEnd();
 
-					indexesMap[segmentsMapIterator.first] = true;
-					indexesMap[allPoints[pointIndex].second] = true;
+					intersectedSegmentIndexMap.insert(mappedIndex);
+					intersectedSegmentIndexMap.insert(allPoints[pointIndex].second);
 
 				}
 			}
-			segmentsMap[allPoints[pointIndex].second] = currentLine;
+			segmentIndexMap.insert(allPoints[pointIndex].second);
 		}
 		else
 		{
-			segmentsMap.erase(allPoints[pointIndex].second);
+			segmentIndexMap.erase(allPoints[pointIndex].second);
 		}
 	}
 
@@ -85,7 +100,7 @@ void Scene::_DrawIntersections (const vector<Segment> & lines)
 
 	for (unsigned int segmentIndex = 0; segmentIndex < lines.size(); segmentIndex ++)
 	{
-		if (indexesMap.find(segmentIndex) != indexesMap.end())
+		if (intersectedSegmentIndexMap.find(segmentIndex) != intersectedSegmentIndexMap.end())
 		{
 			glColor3f(0.72f,0.0f,0.96f);
 			glLineWidth(2.0f);
@@ -99,7 +114,7 @@ void Scene::_DrawIntersections (const vector<Segment> & lines)
 
 	for (unsigned int segmentIndex = 0; segmentIndex < lines.size(); segmentIndex ++)
 	{
-		if (indexesMap.find(segmentIndex) == indexesMap.end())
+		if (intersectedSegmentIndexMap.find(segmentIndex) == intersectedSegmentIndexMap.end())
 		{
 			glColor3f(0.0f,0.0f,1.0f);
 			glLineWidth(2.0f);
