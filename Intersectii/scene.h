@@ -1,5 +1,9 @@
+#ifndef SCENE_H
+#define SCENE_H
+
 #include <vector>
 #include "segment.h"
+#include "vector2D.h"
 
 using namespace std;
 
@@ -14,3 +18,5 @@ private:
 	static void _DrawIntersections(const vector<Segment>& lines);
 
 };
+
+#endif

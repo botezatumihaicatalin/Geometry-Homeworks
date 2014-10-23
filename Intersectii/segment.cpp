@@ -1,24 +1,20 @@
 #include "segment.h"
 
-float Segment::PointOnSegment(const Point2D & point) const
-{
+float Segment::PointOnSegment(const Point2D & point) const {
 	float deltaX = LeftPoint.X - RightPoint.X;
 	float deltaY = LeftPoint.Y - RightPoint.Y;
 	return (-1 * point.X * deltaY + point.Y * deltaX + LeftPoint.X * deltaY - LeftPoint.Y * deltaX);
 }
 
-bool Segment::Intersects(const Segment & otherSegment) const
-{
+bool Segment::Intersects(const Segment & otherSegment) const {
 	float leftPositionCurrent = this->PointOnSegment(otherSegment.LeftPoint);
 	float rightPositionCurrent = this->PointOnSegment(otherSegment.RightPoint);
 	float leftPositionOther = otherSegment.PointOnSegment(LeftPoint);
 	float rightPositionOther = otherSegment.PointOnSegment(RightPoint);
-	return (leftPositionCurrent * rightPositionCurrent <= 0 && leftPositionOther * rightPositionOther < 0) ||
-		   (leftPositionCurrent * rightPositionCurrent < 0 && leftPositionOther * rightPositionOther <= 0);
+	return (leftPositionCurrent * rightPositionCurrent <= 0 && leftPositionOther * rightPositionOther < 0) || (leftPositionCurrent * rightPositionCurrent < 0 && leftPositionOther * rightPositionOther <= 0);
 }
 
-Point2D Segment::IntersectionPoint(const Segment & otherSegment) const
-{
+Point2D Segment::IntersectionPoint(const Segment & otherSegment) const {
 	// AB = this
 	// CD = otherSegment
 	//     (yc - ya)(xb - xa) - (xc - xa)(yb - ya)
@@ -32,8 +28,8 @@ Point2D Segment::IntersectionPoint(const Segment & otherSegment) const
 
 	// P = (1 - q) * C + q * D
 
-	float intersectionX = (otherSegment.LeftPoint.X  * (bottomRatio - topRatio) + otherSegment.RightPoint.X * topRatio) / bottomRatio;
-	float intersectionY = (otherSegment.LeftPoint.Y  * (bottomRatio - topRatio) + otherSegment.RightPoint.Y * topRatio) / bottomRatio;
+	float intersectionX = (otherSegment.LeftPoint.X * (bottomRatio - topRatio) + otherSegment.RightPoint.X * topRatio) / bottomRatio;
+	float intersectionY = (otherSegment.LeftPoint.Y * (bottomRatio - topRatio) + otherSegment.RightPoint.Y * topRatio) / bottomRatio;
 
-	return Point2D(intersectionX , intersectionY);
+	return Point2D(intersectionX, intersectionY);
 }

@@ -1,8 +1,12 @@
+#ifndef POINT2D_H
+#define POINT2D_H
+
 class Point2D {
 
-public :
+public:
 	Point2D(const float & x = 0.0, const float & y = 0.0) :
-		X(x), Y(y) {}
+			X(x), Y(y) {
+	}
 	float X;
 	float Y;
 	bool operator==(const Point2D & other) const;
@@ -11,5 +15,8 @@ public :
 	bool operator<=(const Point2D & other) const;
 	bool operator>=(const Point2D & other) const;
 	bool operator!=(const Point2D & other) const;
+	float Distance(const Point2D & other) const;
 
 };
+
+#endif
