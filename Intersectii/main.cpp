@@ -11,20 +11,60 @@ const float BackgroundColorRGBA[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 
 using namespace std;
 
-bool val = false;
+int selectedPointIndex = 0;
+bool pointSelected = false;
 
 void MouseClick(int button, int state, int x, int y) {
+
+	Point2D clickedPoint(x, WindowHeight - y);
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+
+		// Find the closest point.
+		if (Scene::Points.empty()) {
+			return;
+		}
+		float minimumDistance = clickedPoint.Distance(Scene::Points[0]);
+		int closestPointIndex = 0;
+
+		for (unsigned int pointIndex = 1; pointIndex < Scene::Points.size(); pointIndex++) {
+			float distance = clickedPoint.Distance(Scene::Points[pointIndex]);
+			if (distance < minimumDistance) {
+				minimumDistance = distance;
+				closestPointIndex = pointIndex;
+			}
+		}
+
+		if (minimumDistance > 10.0f) {
+			return;
+		}
+		selectedPointIndex = closestPointIndex;
+		pointSelected = true;
+		return;
+	}
+
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-		float newX = x;
-		float newY = WindowHeight - y;
-		Scene::Points.push_back(Point2D(newX, newY));
+
+		if (pointSelected) {
+			pointSelected = false;
+			return;
+		}
+		pointSelected = false;
+		Scene::Points.push_back(clickedPoint);
 		glutPostRedisplay();
+		return;
 	}
 }
 
-void MouseMove(int x, int y)
-{
+void MouseMove(int x, int y) {
 
+	Point2D mousePositionPoint(x , WindowHeight - y);
+	printf("%s\n", pointSelected ? "true" : "false");
+	printf("%f %f\n", mousePositionPoint.X , mousePositionPoint.Y);
+	if (pointSelected) {
+		Scene::Points[selectedPointIndex].X = mousePositionPoint.X;
+		Scene::Points[selectedPointIndex].Y = mousePositionPoint.Y;
+		glutPostRedisplay();
+	}
 }
 
 void InitializeWindow(int argc, char ** argv) {
@@ -41,7 +81,7 @@ void InitializeWindow(int argc, char ** argv) {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutDisplayFunc(Scene::Render);
-	glutPassiveMotionFunc(MouseMove);
+	glutMotionFunc(MouseMove);
 	glutMouseFunc(MouseClick);
 	glutMainLoop();
 }

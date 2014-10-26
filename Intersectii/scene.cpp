@@ -13,7 +13,7 @@ vector<Point2D> Scene::Points = { };
 void Scene::Render(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (Scene::Points.size() > 1) {
+	if (!Scene::Points.empty()) {
 		vector<Segment> localSegments;
 		localSegments.reserve(Scene::Points.size());
 		if (Scene::Points.size() == 2) {
@@ -60,6 +60,10 @@ void Scene::_DrawPoints(const vector<Point2D> & points) {
 }
 
 void Scene::_DrawIntersections(const vector<Segment> & lines) {
+
+	if (lines.empty()) {
+		return;
+	}
 
 	vector<pair<Point2D, int>> allPoints;
 
