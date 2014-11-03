@@ -7,7 +7,7 @@
 
 #include "vector2D.h"
 
-bool Vector2D::IsLeftTurn(const Vector2D & other) const
+float Vector2D::CrossProduct(const Vector2D & other) const
 {
-	return (this->XVect * other.YVect - this->YVect * other.XVect) < 0.0f;
+	return (this->XVect * other.YVect - this->YVect * other.XVect);
 }

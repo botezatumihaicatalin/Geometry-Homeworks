@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include "scene.h"
 
-const float WindowHeight = 700.0f;
-const float WindowWidth = 1200.0f;
-const float BackgroundColorRGBA[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+float WindowHeight = 700.0f;
+float WindowWidth = 1200.0f;
+float BackgroundColorRGBA[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 
 using namespace std;
 
@@ -57,9 +57,7 @@ void MouseClick(int button, int state, int x, int y) {
 
 void MouseMove(int x, int y) {
 
-	Point2D mousePositionPoint(x , WindowHeight - y);
-	printf("%s\n", pointSelected ? "true" : "false");
-	printf("%f %f\n", mousePositionPoint.X , mousePositionPoint.Y);
+	Point2D mousePositionPoint(x, WindowHeight - y);
 	if (pointSelected) {
 		Scene::Points[selectedPointIndex].X = mousePositionPoint.X;
 		Scene::Points[selectedPointIndex].Y = mousePositionPoint.Y;
@@ -87,5 +85,12 @@ void InitializeWindow(int argc, char ** argv) {
 }
 
 int main(int argc, char ** argv) {
+
+	for (int i = 0; i < 0; i++) {
+		float newX = rand() % (int) (WindowWidth);
+		float newY = rand() % (int) (WindowHeight);
+		Scene::Points.push_back(Point2D(newX, newY));
+	}
 	InitializeWindow(argc, argv);
+
 }
