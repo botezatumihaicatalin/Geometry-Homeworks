@@ -3,10 +3,9 @@
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <algorithm>
-#include <cstdio>
-#include <utility>
+#include <unordered_map>
 #include <unordered_set>
-#include <string.h>
+#include <utility>
 
 #include "point2D.h"
 
@@ -28,13 +27,32 @@ void Scene::Render(void) {
 				localSegments.push_back(Segment(Scene::Points[pointIndex], Scene::Points[(pointIndex + 1) % Scene::Points.size()]));
 			}
 		}
-		Scene::_DrawIntersections(localSegments);
 		Scene::_DrawInteriors(localSegments);
+		Scene::_DrawIntersections(localSegments);
 	}
 
 	Scene::_DrawPoints(Scene::Points);
 
 	glutSwapBuffers();
+}
+
+bool PointIsInTriangle(const Point2D & trianglePoint1, const Point2D & trianglePoint2, const Point2D & trianglePoint3, const Point2D & checkedPoint) {
+
+	double pointOnLine1 = Segment(trianglePoint1, trianglePoint2).PointOnSegment(checkedPoint);
+	double pointOnLine2 = Segment(trianglePoint2, trianglePoint3).PointOnSegment(checkedPoint);
+	double pointOnLine3 = Segment(trianglePoint3, trianglePoint1).PointOnSegment(checkedPoint);
+
+	bool b1 = pointOnLine1 >= 0.0;
+	bool b2 = pointOnLine2 >= 0.0;
+	bool b3 = pointOnLine3 >= 0.0;
+
+	return (b1 == b2 && b2 == b3);
+}
+
+Point2D GetHeavyPoint(const Point2D & point1, const Point2D & point2 , const Point2D & point3) {
+	double newX = (point1.X + point2.X + point3.X) / 3.0;
+	double newY = (point1.Y + point2.Y + point3.Y) / 3.0;
+	return Point2D(newX , newY);
 }
 
 void Scene::_DrawPoints(const vector<Point2D> & points) {
@@ -51,31 +69,57 @@ void Scene::_DrawPoints(const vector<Point2D> & points) {
 		Vector2D vectorLeft(points[previousPointIndex], points[pointIndex]);
 		Vector2D vectorRight(points[pointIndex], points[nextPointIndex]);
 
-		glPointSize(8.0f);
-		if (vectorLeft.CrossProduct(vectorRight) < 0.0f) {
-			glColor3f(0.0f, 1.0f, 0.0f);
+		glPointSize(8.0);
+		if (vectorLeft.CrossProduct(vectorRight) < 0.0) {
+			glColor3d(0.0, 1.0, 0.0);
 		}
 		else {
-			glColor3f(0.0f, 0.0f, 0.0f);
+			glColor3d(0.0, 0.0, 0.0);
 		}
 		glBegin(GL_POINTS);
-		glVertex2f(points[pointIndex].X, points[pointIndex].Y);
+		glVertex2d(points[pointIndex].X, points[pointIndex].Y);
 		glEnd();
 	}
 }
 
+pair<Point2D, Point2D> Scene::_FindMinMaxBox(const vector<Point2D> & points) {
+	if (points.empty()) {
+		return make_pair(Point2D(), Point2D());
+	}
+
+	double minX = points[0].X, minY = points[0].Y , maxX = points[0].X , maxY = points[0].Y;
+	for (unsigned int pointIndex = 1; pointIndex < points.size(); pointIndex ++) {
+		minX = min(minX , points[pointIndex].X);
+		minY = min(minY , points[pointIndex].Y);
+		maxX = max(maxX , points[pointIndex].X);
+		maxY = max(maxY , points[pointIndex].Y);
+	}
+	return make_pair(Point2D(minX,minY),Point2D(maxX,maxY));
+}
+
 void Scene::_DrawInteriors(const vector<Segment> & lines) {
+
+	if (lines.size() < 3) {
+		return;
+	}
 
 	vector<pair<Point2D, int>> * allPoints = new vector<pair<Point2D, int>>();
 	allPoints->reserve(lines.size() * 2);
+	vector<Point2D> * newPoints = new vector<Point2D>();
+	newPoints->reserve(lines.size() * 2);
 	unordered_set<int> * segmentIndexMap = new unordered_set<int>();
-	vector<Point2D> * pointsFromSegment = new vector<Point2D> [lines.size()];
 
 	for (unsigned int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
 		allPoints->push_back(make_pair(lines[lineIndex].LeftPoint, lineIndex));
 		allPoints->push_back(make_pair(lines[lineIndex].RightPoint, lineIndex));
-		pointsFromSegment[lineIndex]= {lines[lineIndex].LeftPoint , lines[lineIndex].RightPoint};
+		newPoints->push_back(lines[lineIndex].LeftPoint);
 	}
+
+	pair<Point2D, Point2D> minMaxBox = Scene::_FindMinMaxBox(*newPoints);
+	Point2D farPoint(minMaxBox.first.X - 10 , minMaxBox.first.Y - 10);
+
+	Scene::_DrawPoints({ farPoint });
+
 	sort(allPoints->begin(), allPoints->end(), [](const pair<Point2D, int> & point1, const pair<Point2D, int> & point2) {
 		return point1.first <= point2.first;
 	});
@@ -89,8 +133,7 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 			for (const int & mappedIndex : (*segmentIndexMap)) {
 				if (currentLine->Intersects(lines[mappedIndex])) {
 					Point2D intersectionPoint = currentLine->IntersectionPoint(lines[mappedIndex]);
-					pointsFromSegment[mappedIndex].push_back(intersectionPoint);
-					pointsFromSegment[(*allPoints)[pointIndex].second].push_back(intersectionPoint);
+					newPoints->push_back(intersectionPoint);
 				}
 			}
 			segmentIndexMap->insert((*allPoints)[pointIndex].second);
@@ -100,27 +143,10 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 		}
 	}
 
+	delete segmentIndexMap;
 	delete allPoints;
 
-	vector<Segment> * newLines = new vector<Segment>();
-
-	for (unsigned int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
-		for (unsigned int pointIndex = 1; pointIndex < pointsFromSegment[lineIndex].size(); pointIndex++) {
-			newLines->push_back(Segment(pointsFromSegment[lineIndex][pointIndex - 1], pointsFromSegment[lineIndex][pointIndex]));
-		}
-	}
-
-	delete[] pointsFromSegment;
-
-	vector<int> * currentPolygon = new vector<int>();
-	segmentIndexMap->clear();
-
-	for (unsigned int lineIndex = 0; lineIndex < newLines->size(); lineIndex++) {
-		segmentIndexMap->insert(lineIndex);
-	}
-
-	delete currentPolygon;
-	delete newLines;
+	sort(newPoints->begin(), newPoints->end());
 }
 
 void Scene::_DrawIntersections(const vector<Segment> & lines) {
@@ -151,10 +177,10 @@ void Scene::_DrawIntersections(const vector<Segment> & lines) {
 			for (const int & mappedIndex : (*segmentIndexMap)) {
 				if (currentLine->Intersects(lines[mappedIndex])) {
 					Point2D intersectionPoint = currentLine->IntersectionPoint(lines[mappedIndex]);
-					glPointSize(8.0f);
-					glColor3f(1.0f, 0.0f, 0.0f);
+					glPointSize(8.0);
+					glColor3d(1.0, 0.0, 0.0);
 					glBegin(GL_POINTS);
-					glVertex2f(intersectionPoint.X, intersectionPoint.Y);
+					glVertex2d(intersectionPoint.X, intersectionPoint.Y);
 					glEnd();
 
 					intersectedSegmentIndexMap->insert(mappedIndex);
@@ -178,11 +204,11 @@ void Scene::_DrawIntersections(const vector<Segment> & lines) {
 	for (unsigned int segmentIndex = 0; segmentIndex < lines.size(); segmentIndex++) {
 
 		if (intersectedSegmentIndexMap->find(segmentIndex) != intersectedSegmentIndexMap->end()) {
-			glColor3f(0.72f, 0.0f, 0.96f);
-			glLineWidth(2.0f);
+			glColor3d(0.72, 0.0, 0.96f);
+			glLineWidth(2.0);
 			glBegin(GL_LINES);
-			glVertex2f(lines[segmentIndex].LeftPoint.X, lines[segmentIndex].LeftPoint.Y);
-			glVertex2f(lines[segmentIndex].RightPoint.X, lines[segmentIndex].RightPoint.Y);
+			glVertex2d(lines[segmentIndex].LeftPoint.X, lines[segmentIndex].LeftPoint.Y);
+			glVertex2d(lines[segmentIndex].RightPoint.X, lines[segmentIndex].RightPoint.Y);
 			glEnd();
 		}
 	}
@@ -190,11 +216,11 @@ void Scene::_DrawIntersections(const vector<Segment> & lines) {
 
 	for (unsigned int segmentIndex = 0; segmentIndex < lines.size(); segmentIndex++) {
 		if (intersectedSegmentIndexMap->find(segmentIndex) == intersectedSegmentIndexMap->end()) {
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glLineWidth(2.0f);
+			glColor3d(0.0, 0.0, 1.0);
+			glLineWidth(2.0);
 			glBegin(GL_LINES);
-			glVertex2f(lines[segmentIndex].LeftPoint.X, lines[segmentIndex].LeftPoint.Y);
-			glVertex2f(lines[segmentIndex].RightPoint.X, lines[segmentIndex].RightPoint.Y);
+			glVertex2d(lines[segmentIndex].LeftPoint.X, lines[segmentIndex].LeftPoint.Y);
+			glVertex2d(lines[segmentIndex].RightPoint.X, lines[segmentIndex].RightPoint.Y);
 			glEnd();
 		}
 	}

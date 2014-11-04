@@ -12,7 +12,7 @@ public:
 	}
 	bool Intersects(const Segment & otherSegment) const;
 	Point2D IntersectionPoint(const Segment & otherSegment) const;
-	float PointOnSegment(const Point2D & point) const;
+	double PointOnSegment(const Point2D & point) const;
 };
 
 #endif /* SEGMENT_H */

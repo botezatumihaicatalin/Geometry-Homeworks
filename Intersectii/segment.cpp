@@ -1,16 +1,16 @@
 #include "segment.h"
 
-float Segment::PointOnSegment(const Point2D & point) const {
-	float deltaX = LeftPoint.X - RightPoint.X;
-	float deltaY = LeftPoint.Y - RightPoint.Y;
+double Segment::PointOnSegment(const Point2D & point) const {
+	double deltaX = LeftPoint.X - RightPoint.X;
+	double deltaY = LeftPoint.Y - RightPoint.Y;
 	return (-1 * point.X * deltaY + point.Y * deltaX + LeftPoint.X * deltaY - LeftPoint.Y * deltaX);
 }
 
 bool Segment::Intersects(const Segment & otherSegment) const {
-	float leftPositionCurrent = this->PointOnSegment(otherSegment.LeftPoint);
-	float rightPositionCurrent = this->PointOnSegment(otherSegment.RightPoint);
-	float leftPositionOther = otherSegment.PointOnSegment(LeftPoint);
-	float rightPositionOther = otherSegment.PointOnSegment(RightPoint);
+	double leftPositionCurrent = this->PointOnSegment(otherSegment.LeftPoint);
+	double rightPositionCurrent = this->PointOnSegment(otherSegment.RightPoint);
+	double leftPositionOther = otherSegment.PointOnSegment(LeftPoint);
+	double rightPositionOther = otherSegment.PointOnSegment(RightPoint);
 	return (leftPositionCurrent * rightPositionCurrent <= 0 && leftPositionOther * rightPositionOther < 0) || (leftPositionCurrent * rightPositionCurrent < 0 && leftPositionOther * rightPositionOther <= 0);
 }
 
@@ -21,15 +21,15 @@ Point2D Segment::IntersectionPoint(const Segment & otherSegment) const {
 	// q = --------------------------------------
 	//	   (xd - xc)(yb - ya) - (yd - yc)(xb - xa)
 
-	float deltaX = LeftPoint.X - RightPoint.X;
-	float deltaY = LeftPoint.Y - RightPoint.Y;
-	float topRatio = (otherSegment.LeftPoint.X - this->LeftPoint.X) * deltaY - (otherSegment.LeftPoint.Y - this->LeftPoint.Y) * deltaX;
-	float bottomRatio = (otherSegment.RightPoint.Y - otherSegment.LeftPoint.Y) * deltaX - (otherSegment.RightPoint.X - otherSegment.LeftPoint.X) * deltaY;
+	double deltaX = LeftPoint.X - RightPoint.X;
+	double deltaY = LeftPoint.Y - RightPoint.Y;
+	double topRatio = (otherSegment.LeftPoint.X - this->LeftPoint.X) * deltaY - (otherSegment.LeftPoint.Y - this->LeftPoint.Y) * deltaX;
+	double bottomRatio = (otherSegment.RightPoint.Y - otherSegment.LeftPoint.Y) * deltaX - (otherSegment.RightPoint.X - otherSegment.LeftPoint.X) * deltaY;
 
 	// P = (1 - q) * C + q * D
 
-	float intersectionX = (otherSegment.LeftPoint.X * (bottomRatio - topRatio) + otherSegment.RightPoint.X * topRatio) / bottomRatio;
-	float intersectionY = (otherSegment.LeftPoint.Y * (bottomRatio - topRatio) + otherSegment.RightPoint.Y * topRatio) / bottomRatio;
+	double intersectionX = (otherSegment.LeftPoint.X * (bottomRatio - topRatio) + otherSegment.RightPoint.X * topRatio) / bottomRatio;
+	double intersectionY = (otherSegment.LeftPoint.Y * (bottomRatio - topRatio) + otherSegment.RightPoint.Y * topRatio) / bottomRatio;
 
 	return Point2D(intersectionX, intersectionY);
 }

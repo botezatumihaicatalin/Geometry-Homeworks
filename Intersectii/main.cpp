@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include "scene.h"
 
-float WindowHeight = 700.0f;
-float WindowWidth = 1200.0f;
-float BackgroundColorRGBA[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+double WindowHeight = 700.0;
+double WindowWidth = 1200.0;
+double BackgroundColorRGBA[4] = { 1.0, 1.0, 1.0, 0.0 };
 
 using namespace std;
 
@@ -23,18 +23,18 @@ void MouseClick(int button, int state, int x, int y) {
 		if (Scene::Points.empty()) {
 			return;
 		}
-		float minimumDistance = clickedPoint.Distance(Scene::Points[0]);
+		double minimumDistance = clickedPoint.Distance(Scene::Points[0]);
 		int closestPointIndex = 0;
 
 		for (unsigned int pointIndex = 1; pointIndex < Scene::Points.size(); pointIndex++) {
-			float distance = clickedPoint.Distance(Scene::Points[pointIndex]);
+			double distance = clickedPoint.Distance(Scene::Points[pointIndex]);
 			if (distance < minimumDistance) {
 				minimumDistance = distance;
 				closestPointIndex = pointIndex;
 			}
 		}
 
-		if (minimumDistance > 10.0f) {
+		if (minimumDistance > 10.0) {
 			return;
 		}
 		selectedPointIndex = closestPointIndex;
@@ -87,8 +87,8 @@ void InitializeWindow(int argc, char ** argv) {
 int main(int argc, char ** argv) {
 
 	for (int i = 0; i < 0; i++) {
-		float newX = rand() % (int) (WindowWidth);
-		float newY = rand() % (int) (WindowHeight);
+		double newX = rand() % (int) (WindowWidth);
+		double newY = rand() % (int) (WindowHeight);
 		Scene::Points.push_back(Point2D(newX, newY));
 	}
 	InitializeWindow(argc, argv);

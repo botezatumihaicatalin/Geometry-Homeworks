@@ -26,8 +26,8 @@ bool Point2D::operator !=(const Point2D & other) const {
 	return !(*this == other);
 }
 
-float Point2D::Distance(const Point2D & other) const {
-	float deltaX = this->X - other.X;
-	float deltaY = this->Y - other.Y;
-	return sqrtf(deltaX * deltaX + deltaY * deltaY);
+double Point2D::Distance(const Point2D & other) const {
+	double deltaX = this->X - other.X;
+	double deltaY = this->Y - other.Y;
+	return sqrt(deltaX * deltaX + deltaY * deltaY);
 }

@@ -17,6 +17,7 @@ private:
 	static void _DrawPoints(const vector<Point2D>& points);
 	static void _DrawIntersections(const vector<Segment>& lines);
 	static void _DrawInteriors(const vector<Segment>& lines);
+	static pair<Point2D, Point2D> _FindMinMaxBox(const vector<Point2D>& points);
 };
 
 #endif
