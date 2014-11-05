@@ -5,8 +5,6 @@
 #include <unordered_map>
 #include "scene.h"
 
-double WindowHeight = 700.0;
-double WindowWidth = 1200.0;
 double BackgroundColorRGBA[4] = { 1.0, 1.0, 1.0, 0.0 };
 
 using namespace std;
@@ -16,7 +14,8 @@ bool pointSelected = false;
 
 void MouseClick(int button, int state, int x, int y) {
 
-	Point2D clickedPoint(x, WindowHeight - y);
+	int windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+	Point2D clickedPoint(x, windowHeight - y);
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 
 		// Find the closest point.
@@ -57,7 +56,8 @@ void MouseClick(int button, int state, int x, int y) {
 
 void MouseMove(int x, int y) {
 
-	Point2D mousePositionPoint(x, WindowHeight - y);
+	int windowHeight = glutGet(GLUT_WINDOW_HEIGHT);
+	Point2D mousePositionPoint(x, windowHeight - y);
 	if (pointSelected) {
 		Scene::Points[selectedPointIndex].X = mousePositionPoint.X;
 		Scene::Points[selectedPointIndex].Y = mousePositionPoint.Y;
@@ -69,12 +69,12 @@ void InitializeWindow(int argc, char ** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(WindowWidth, WindowHeight);
+	glutInitWindowSize(1200, 700);
 	glutCreateWindow("Intersections");
 
 	glClearColor(BackgroundColorRGBA[0], BackgroundColorRGBA[1], BackgroundColorRGBA[2], BackgroundColorRGBA[3]);
 	glMatrixMode(GL_PROJECTION);
-	gluOrtho2D(0.0, WindowWidth, 0.0, WindowHeight);
+	gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
 	glShadeModel(GL_SMOOTH);
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -85,11 +85,9 @@ void InitializeWindow(int argc, char ** argv) {
 }
 
 int main(int argc, char ** argv) {
-
-	for (int i = 0; i < 0; i++) {
-		double newX = rand() % (int) (WindowWidth);
-		double newY = rand() % (int) (WindowHeight);
-		Scene::Points.push_back(Point2D(newX, newY));
+	for (int i = 0; i < 0; i ++ )
+	{
+		Scene::Points.push_back(Point2D(rand() % 1200 , rand() % 700));
 	}
 	InitializeWindow(argc, argv);
 

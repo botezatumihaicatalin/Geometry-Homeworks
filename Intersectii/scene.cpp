@@ -36,25 +36,6 @@ void Scene::Render(void) {
 	glutSwapBuffers();
 }
 
-bool PointIsInTriangle(const Point2D & trianglePoint1, const Point2D & trianglePoint2, const Point2D & trianglePoint3, const Point2D & checkedPoint) {
-
-	double pointOnLine1 = Segment(trianglePoint1, trianglePoint2).PointOnSegment(checkedPoint);
-	double pointOnLine2 = Segment(trianglePoint2, trianglePoint3).PointOnSegment(checkedPoint);
-	double pointOnLine3 = Segment(trianglePoint3, trianglePoint1).PointOnSegment(checkedPoint);
-
-	bool b1 = pointOnLine1 >= 0.0;
-	bool b2 = pointOnLine2 >= 0.0;
-	bool b3 = pointOnLine3 >= 0.0;
-
-	return (b1 == b2 && b2 == b3);
-}
-
-Point2D GetHeavyPoint(const Point2D & point1, const Point2D & point2 , const Point2D & point3) {
-	double newX = (point1.X + point2.X + point3.X) / 3.0;
-	double newY = (point1.Y + point2.Y + point3.Y) / 3.0;
-	return Point2D(newX , newY);
-}
-
 void Scene::_DrawPoints(const vector<Point2D> & points) {
 
 	for (unsigned int pointIndex = 0; pointIndex < points.size(); pointIndex++) {
@@ -87,17 +68,17 @@ pair<Point2D, Point2D> Scene::_FindMinMaxBox(const vector<Point2D> & points) {
 		return make_pair(Point2D(), Point2D());
 	}
 
-	double minX = points[0].X, minY = points[0].Y , maxX = points[0].X , maxY = points[0].Y;
-	for (unsigned int pointIndex = 1; pointIndex < points.size(); pointIndex ++) {
-		minX = min(minX , points[pointIndex].X);
-		minY = min(minY , points[pointIndex].Y);
-		maxX = max(maxX , points[pointIndex].X);
-		maxY = max(maxY , points[pointIndex].Y);
+	double minX = points[0].X, minY = points[0].Y, maxX = points[0].X, maxY = points[0].Y;
+	for (unsigned int pointIndex = 1; pointIndex < points.size(); pointIndex++) {
+		minX = min(minX, points[pointIndex].X);
+		minY = min(minY, points[pointIndex].Y);
+		maxX = max(maxX, points[pointIndex].X);
+		maxY = max(maxY, points[pointIndex].Y);
 	}
-	return make_pair(Point2D(minX,minY),Point2D(maxX,maxY));
+	return make_pair(Point2D(minX, minY), Point2D(maxX, maxY));
 }
 
-void Scene::_DrawInteriors(const vector<Segment> & lines) {
+void DrawInteriorsExp(const vector<Segment> & lines) {
 
 	if (lines.size() < 3) {
 		return;
@@ -114,11 +95,6 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 		allPoints->push_back(make_pair(lines[lineIndex].RightPoint, lineIndex));
 		newPoints->push_back(lines[lineIndex].LeftPoint);
 	}
-
-	pair<Point2D, Point2D> minMaxBox = Scene::_FindMinMaxBox(*newPoints);
-	Point2D farPoint(minMaxBox.first.X - 10 , minMaxBox.first.Y - 10);
-
-	Scene::_DrawPoints({ farPoint });
 
 	sort(allPoints->begin(), allPoints->end(), [](const pair<Point2D, int> & point1, const pair<Point2D, int> & point2) {
 		return point1.first <= point2.first;
@@ -145,8 +121,60 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 
 	delete segmentIndexMap;
 	delete allPoints;
+}
 
-	sort(newPoints->begin(), newPoints->end());
+void Scene::_DrawInteriors(const vector<Segment> & lines) {
+
+	if (lines.size() < 3) {
+		return;
+	}
+
+	vector<Point2D> * allPoints = new vector<Point2D>();
+
+	for (unsigned int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+		allPoints->push_back(lines[lineIndex].LeftPoint);
+	}
+
+	pair<Point2D, Point2D> minMaxBox = Scene::_FindMinMaxBox(*allPoints);
+	delete allPoints;
+
+	vector<Point2D> * intersectionPoints = new vector<Point2D>();
+
+	for (double lineY = minMaxBox.first.Y - 10.0; lineY <= minMaxBox.second.Y + 10.0; lineY += 1.0) {
+
+		Segment longLine(Point2D(minMaxBox.first.X - 10.0, lineY), Point2D(minMaxBox.second.X + 10.0, lineY));
+
+		intersectionPoints->clear();
+
+		for (unsigned int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+			if (longLine.Intersects(lines[lineIndex])) {
+				intersectionPoints->push_back(longLine.IntersectionPoint(lines[lineIndex]));
+			}
+		}
+
+		sort(intersectionPoints->begin(), intersectionPoints->end());
+
+		if (intersectionPoints->size() % 2 != 0) {
+			// Eliminate one doubled
+			for (unsigned int pointIndex = 1; pointIndex < intersectionPoints->size(); pointIndex ++) {
+				if ((*intersectionPoints)[pointIndex] == (*intersectionPoints)[pointIndex - 1]) {
+					intersectionPoints->erase(intersectionPoints->begin() + pointIndex);
+					break;
+				}
+			}
+		}
+
+		for (unsigned int pointIndex = 1; pointIndex < intersectionPoints->size(); pointIndex += 2) {
+			glColor3d(1.0, 1.0, 0.0);
+			glLineWidth(1.0);
+			glBegin(GL_LINES);
+			glVertex2d((*intersectionPoints)[pointIndex].X, (*intersectionPoints)[pointIndex].Y);
+			glVertex2d((*intersectionPoints)[pointIndex - 1].X, (*intersectionPoints)[pointIndex - 1].Y);
+			glEnd();
+		}
+	}
+	delete intersectionPoints;
+
 }
 
 void Scene::_DrawIntersections(const vector<Segment> & lines) {
@@ -204,7 +232,7 @@ void Scene::_DrawIntersections(const vector<Segment> & lines) {
 	for (unsigned int segmentIndex = 0; segmentIndex < lines.size(); segmentIndex++) {
 
 		if (intersectedSegmentIndexMap->find(segmentIndex) != intersectedSegmentIndexMap->end()) {
-			glColor3d(0.72, 0.0, 0.96f);
+			glColor3d(0.72, 0.0, 0.96);
 			glLineWidth(2.0);
 			glBegin(GL_LINES);
 			glVertex2d(lines[segmentIndex].LeftPoint.X, lines[segmentIndex].LeftPoint.Y);
