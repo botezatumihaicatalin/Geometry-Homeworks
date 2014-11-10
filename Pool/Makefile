@@ -1,8 +1,8 @@
 CXXFLAGS =	-O2 -g -Wall -std=c++11 -fmessage-length=0
 
-OBJS =		main.o
+OBJS = main.o
 
-LIBS =		-lGL -lGLU -lglut
+LIBS = -lGL -lGLU -lglut
 
 TARGET = Pool 
 

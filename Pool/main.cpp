@@ -1,14 +1,8 @@
-//============================================================================
-// Name        : Pool.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C, Ansi-style
-//============================================================================
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/freeglut.h>
+
+using namespace std;
 
 double BackgroundColorRGBA[4] = { 1.0, 1.0, 1.0, 0.0 };
 
