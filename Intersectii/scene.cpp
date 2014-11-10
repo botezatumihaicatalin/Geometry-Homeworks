@@ -139,12 +139,14 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 	delete allPoints;
 
 	vector<Point2D> * intersectionPoints = new vector<Point2D>();
+	vector<Point2D> * minifiedIntersectionPoints = new vector<Point2D>();
 
 	for (double lineY = minMaxBox.first.Y - 10.0; lineY <= minMaxBox.second.Y + 10.0; lineY += 1.0) {
 
 		Segment longLine(Point2D(minMaxBox.first.X - 10.0, lineY), Point2D(minMaxBox.second.X + 10.0, lineY));
 
 		intersectionPoints->clear();
+		minifiedIntersectionPoints->clear();
 
 		for (unsigned int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
 			if (longLine.Intersects(lines[lineIndex])) {
@@ -154,26 +156,34 @@ void Scene::_DrawInteriors(const vector<Segment> & lines) {
 
 		sort(intersectionPoints->begin(), intersectionPoints->end());
 
-		if (intersectionPoints->size() % 2 != 0) {
-			// Eliminate one doubled
-			for (unsigned int pointIndex = 1; pointIndex < intersectionPoints->size(); pointIndex ++) {
-				if ((*intersectionPoints)[pointIndex] == (*intersectionPoints)[pointIndex - 1]) {
-					intersectionPoints->erase(intersectionPoints->begin() + pointIndex);
-					break;
+		// Eliminate all doubled
+		if (!intersectionPoints->empty() && intersectionPoints->size() % 2 != 0) {
+
+			for (unsigned int pointIndex = 0; pointIndex < intersectionPoints->size() - 1; pointIndex ++) {
+				if ((*intersectionPoints)[pointIndex] != (*intersectionPoints)[pointIndex + 1]) {
+					minifiedIntersectionPoints->push_back((*intersectionPoints)[pointIndex]);
 				}
+			}
+			minifiedIntersectionPoints->push_back(intersectionPoints->back());
+		} else {
+			minifiedIntersectionPoints->reserve(intersectionPoints->size());
+			for (const Point2D & intersectionPoint : (*intersectionPoints)) {
+				minifiedIntersectionPoints->push_back(intersectionPoint);
 			}
 		}
 
-		for (unsigned int pointIndex = 1; pointIndex < intersectionPoints->size(); pointIndex += 2) {
+		for (unsigned int pointIndex = 1; pointIndex < minifiedIntersectionPoints->size(); pointIndex += 2) {
 			glColor3d(1.0, 1.0, 0.0);
 			glLineWidth(1.0);
 			glBegin(GL_LINES);
-			glVertex2d((*intersectionPoints)[pointIndex].X, (*intersectionPoints)[pointIndex].Y);
-			glVertex2d((*intersectionPoints)[pointIndex - 1].X, (*intersectionPoints)[pointIndex - 1].Y);
+			glVertex2d((*minifiedIntersectionPoints)[pointIndex].X, (*minifiedIntersectionPoints)[pointIndex].Y);
+			glVertex2d((*minifiedIntersectionPoints)[pointIndex - 1].X, (*minifiedIntersectionPoints)[pointIndex - 1].Y);
 			glEnd();
 		}
 	}
+
 	delete intersectionPoints;
+	delete minifiedIntersectionPoints;
 
 }
 
