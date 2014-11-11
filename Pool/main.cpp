@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/freeglut.h>
+#include "scene.h"
 
 using namespace std;
 
 double BackgroundColorRGBA[4] = { 1.0, 1.0, 1.0, 0.0 };
+
+void ReshapeFunc(int width , int height) {
+	glutReshapeWindow(1200.0 , 700.0);
+}
 
 void InitializeWindow(int argc, char ** argv) {
 	glutInit(&argc, argv);
@@ -17,7 +22,8 @@ void InitializeWindow(int argc, char ** argv) {
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
 	glShadeModel(GL_SMOOTH);
-
+	glutDisplayFunc(Scene::Render);
+	glutReshapeFunc(ReshapeFunc);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutMainLoop();
 }
