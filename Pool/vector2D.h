@@ -9,9 +9,20 @@ public:
 	Vector2D(const double & xVect , const double & yVect) : XVect(xVect) , YVect(yVect) {};
 	Vector2D(const Point2D & point) : Vector2D(point.X , point.Y) {};
 	Vector2D(const Point2D & point1 , const Point2D & point2) : XVect(point2.X - point1.X) , YVect(point2.Y - point1.Y) {};
-	Vector2D operator+(const Vector2D & other) const;
-	Vector2D operator-(const Vector2D & other) const;
+
+	friend Vector2D operator+(const Vector2D & v1 , const Vector2D & v2);
+	friend Vector2D operator-(const Vector2D & v1 , const Vector2D & v2);
+	friend Vector2D operator*(const Vector2D & v1 , const double & scalar);
+    friend Vector2D operator*(const double & scalar , const Vector2D & v1);
+
+	void operator+=(const Vector2D & other);
+	void operator-=(const Vector2D & other);
+	void operator*=(const double & scalar);
+
+	double Length() const;
+	Vector2D Normalize() const;
 	double CrossProduct(const Vector2D & other) const;
+	double DotProduct(const Vector2D & other) const;
 };
 
 #endif /* VECTOR2D_H */
