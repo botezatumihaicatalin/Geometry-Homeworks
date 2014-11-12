@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <GL/freeglut.h>
 #include "scene.h"
+#include <time.h>
 
 using namespace std;
 
@@ -12,8 +13,11 @@ void ReshapeFunc(int width , int height) {
 }
 
 void DisplayFunc() {
+    clock_t startClocks = clock();
 	Scene::Movement();
 	Scene::Render();
+	clock_t endClocks = clock();
+	Scene::LastFrameDuration = double(endClocks - startClocks) / CLOCKS_PER_SEC * 1000;
 }
 
 void InitializeWindow(int argc, char ** argv) {

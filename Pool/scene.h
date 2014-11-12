@@ -15,6 +15,7 @@ public:
 	static vector<Circle> tablePockets;
 	static vector<Ball> balls;
 
+	static double LastFrameDuration;
 	static void Movement(void);
 	static void Render(void);
 };
