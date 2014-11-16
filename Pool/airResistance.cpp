@@ -11,18 +11,18 @@ const double AirResistanceValue = 100.0;
 
 Vector2D AirResistance::MakeAirResistance(const Ball & ball) {
     Vector2D resistanceVect(0.0,0.0);
-    if (ball.Direction.XVect < 0.0) {
-        resistanceVect.XVect = AirResistanceValue;
+    if (ball.Direction.X < 0.0) {
+        resistanceVect.X = AirResistanceValue;
     }
     else {
-        resistanceVect.XVect = -AirResistanceValue;
+        resistanceVect.X = -AirResistanceValue;
     }
 
-    if (ball.Direction.YVect < 0.0) {
-        resistanceVect.YVect = AirResistanceValue;
+    if (ball.Direction.Y < 0.0) {
+        resistanceVect.Y = AirResistanceValue;
     }
     else {
-        resistanceVect.YVect = -AirResistanceValue;
+        resistanceVect.Y = -AirResistanceValue;
     }
 
     return resistanceVect;

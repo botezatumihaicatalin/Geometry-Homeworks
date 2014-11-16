@@ -1,12 +1,21 @@
 #include "scene.h"
-#include <GL/freeglut.h>
+
+#include <GL/freeglut_std.h>
+#include <GL/gl.h>
 #include <math.h>
+#include <cstdio>
+#include <bitset>
+
 #include "airResistance.h"
+#include "point2D.h"
+#include "vector2D.h"
 
 const double holeDiameter = 60.0;
 const double ballRadius = 18.0;
 const double firstBallX = 700.0;
 const double firstBallY = 350.0;
+
+using namespace std;
 
 vector<Segment> Scene::tableMargins = {
 	Segment(Point2D(holeDiameter,holeDiameter / 2) , Point2D((1200 - holeDiameter) / 2 , holeDiameter / 2)),
@@ -27,7 +36,7 @@ vector<Circle> Scene::tablePockets = {
 };
 
 vector<Ball> Scene::balls = {
-    Ball(Vector2D(600.0,0.0),Point2D(300.0,350.0),ballRadius),
+    Ball(Vector2D(3.5 * 600.0, 0.0),Point2D(350,300.0),ballRadius),
 
 	Ball(Vector2D(-0.0,0.0),Point2D(firstBallX,firstBallY),ballRadius),
 
@@ -50,7 +59,7 @@ vector<Ball> Scene::balls = {
     Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY + 4 * ballRadius),ballRadius),
 };
 
-double Scene::LastFrameDuration = 1;
+double Scene::LastFrameDuration = 0;
 
 void drawCircle(double x , double y , double radius) {
 
@@ -71,33 +80,95 @@ void drawCircle(double x , double y , double radius) {
 
 void Scene::Movement(void) {
 
-    double frameRatio = (Scene::LastFrameDuration / 1000);
+    double frameRatio = (LastFrameDuration / 1000);
+
     for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
 
+        Ball * const ball1 = &balls[ballIndex1];
+
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
-            // Check if the ball will collide in the next future.
+            Ball * const ball2 = &balls[ballIndex2];
+//            ball2->Collide(*ball1);
 
-            balls[ballIndex1].Center.X += balls[ballIndex1].Direction.XVect * frameRatio;
-            balls[ballIndex1].Center.Y += balls[ballIndex1].Direction.YVect * frameRatio;
+            ball1->Center.X += ball1->Direction.X * frameRatio;
+            ball1->Center.Y += ball1->Direction.Y * frameRatio;
+            ball2->Center.X += ball2->Direction.X * frameRatio;
+            ball2->Center.Y += ball2->Direction.Y * frameRatio;
 
-            if (balls[ballIndex1].Collides(balls[ballIndex2])) {
-                double collisionLength = balls[ballIndex1].Center.Distance(balls[ballIndex2].Center);
-                if (collisionLength != (balls[ballIndex1].Radius + balls[ballIndex2].Radius)) {
-                    double ratio = collisionLength / (balls[ballIndex1].Radius + balls[ballIndex2].Radius);
-                    balls[ballIndex1].Center.X -= (1 - ratio) * balls[ballIndex1].Direction.XVect * frameRatio;
-                    balls[ballIndex1].Center.Y -= (1 - ratio) * balls[ballIndex1].Direction.YVect * frameRatio;
-                    balls[ballIndex2].Center.X -= (1 - ratio) * balls[ballIndex2].Direction.XVect * frameRatio;
-                    balls[ballIndex2].Center.Y -= (1 - ratio) * balls[ballIndex2].Direction.YVect * frameRatio;
+            CollisionState collisionState = ball1->Collides(*ball2);
+
+            ball1->Center.X -= ball1->Direction.X * frameRatio;
+            ball1->Center.Y -= ball1->Direction.Y * frameRatio;
+            ball2->Center.X -= ball2->Direction.X * frameRatio;
+            ball2->Center.Y -= ball2->Direction.Y * frameRatio;
+
+            switch (collisionState) {
+
+                case Overlapping : {
+                    double a = ball1->Center.X;
+                    double b = ball1->Direction.X;
+                    double c = ball2->Center.X;
+                    double d = ball2->Direction.X;
+
+                    double e = ball1->Center.Y;
+                    double f = ball1->Direction.Y;
+                    double g = ball2->Center.Y;
+                    double h = ball2->Direction.Y;
+
+                    double cd = 0.0;
+
+                    double A = (b - d) * (b - d) + (f - h) * (f - h);
+                    double B = 2 * (a - c) * ( b - d) + 2 * (e - g) * (f - h);
+                    double C = (a - c) * (a - c) + (e - g) * (e - g) - (ball1->Radius + ball1->Radius) * (ball1->Radius + ball1->Radius);
+
+                    double delta = B * B - 4 * A * C;
+                    if (delta < 0) {
+                        continue;
+                    }
+
+                    double s1 = ( -1 * B + sqrt(delta) ) / (2 * A);
+                    double s2 = ( -1 * B - sqrt(delta) ) / (2 * A);
+                    if (s1 > 0 && s1 <= 1) {
+                        cd = s1;
+                    }
+
+                    if (s2 > 0 && s2 <= 1) {
+                        cd = s2;
+                    }
+
+                    ball1->Center.X += ball1->Direction.X * frameRatio * cd;
+                    ball1->Center.Y += ball1->Direction.Y * frameRatio * cd;
+                    ball2->Center.X += ball2->Direction.X * frameRatio * cd;
+                    ball2->Center.Y += ball2->Direction.Y * frameRatio * cd;
+                    ball1->Collide(*ball2);
+                    ball1->Center.X += ball1->Direction.X * frameRatio * (1 - cd);
+                    ball1->Center.Y += ball1->Direction.Y * frameRatio * (1 - cd);
+                    ball2->Center.X += ball2->Direction.X * frameRatio * (1 - cd);
+                    ball2->Center.Y += ball2->Direction.Y * frameRatio * (1 - cd);
+                    break;
+                }
+
+                case Tangent : {
+                    ball1->Collide(*ball2);
+                    ball1->Center.X += ball1->Direction.X * frameRatio;
+                    ball1->Center.Y += ball1->Direction.Y * frameRatio;
+                    ball2->Center.X += ball2->Direction.X * frameRatio;
+                    ball2->Center.Y += ball2->Direction.Y * frameRatio;
+                    break;
+                }
+
+                case NoCollision : {
+                    break;
                 }
             }
-
-            balls[ballIndex1].Center.X -= balls[ballIndex1].Direction.XVect * frameRatio;
-            balls[ballIndex1].Center.Y -= balls[ballIndex1].Direction.YVect * frameRatio;
-            balls[ballIndex1].Collide(balls[ballIndex2]);
         }
-        balls[ballIndex1].Center.X += balls[ballIndex1].Direction.XVect * frameRatio;
-        balls[ballIndex1].Center.Y += balls[ballIndex1].Direction.YVect * frameRatio;
-        balls[ballIndex1].Direction += AirResistance::MakeAirResistance(balls[ballIndex1]) * frameRatio;
+        for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+            Segment * const segment = &tableMargins[tableMarginIndex];
+            ball1->Collide(*segment);
+        }
+        ball1->Center.X += ball1->Direction.X * frameRatio;
+        ball1->Center.Y += ball1->Direction.Y * frameRatio;
+        ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
     }
 }
 
@@ -105,7 +176,7 @@ void Scene::Render(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (const Segment & margin : Scene::tableMargins) {
+	for (const Segment & margin : tableMargins) {
 		glColor3d(0.0,0.0,1.0);
 		glLineWidth(3.0);
 		glBegin(GL_LINES);
@@ -114,11 +185,11 @@ void Scene::Render(void) {
 		glEnd();
 	}
 
-	for (const Circle & circle : Scene::tablePockets) {
+	for (const Circle & circle : tablePockets) {
 		drawCircle(circle.Center.X , circle.Center.Y , circle.Radius);
 	}
 
-	for (const Ball & ball : Scene::balls) {
+	for (const Ball & ball : balls) {
 		drawCircle(ball.Center.X, ball.Center.Y, ball.Radius);
 	}
 

@@ -9,23 +9,23 @@
 #include "math.h"
 
 double Vector2D::CrossProduct(const Vector2D & other) const {
-    return (this->XVect * other.YVect - this->YVect * other.XVect);
+    return (this->X * other.Y - this->Y * other.X);
 }
 
 double Vector2D::DotProduct(const Vector2D & other) const {
-    return (this->XVect * other.XVect + this->YVect * other.YVect);
+    return (this->X * other.X + this->Y * other.Y);
 }
 
 Vector2D operator+(const Vector2D & v1, const Vector2D & v2) {
-    return Vector2D(v1.XVect + v2.XVect, v1.YVect + v2.YVect);
+    return Vector2D(v1.X + v2.X, v1.Y + v2.Y);
 }
 
 Vector2D operator-(const Vector2D & v1, const Vector2D & v2) {
-    return Vector2D(v1.XVect - v2.XVect, v1.YVect - v2.YVect);
+    return Vector2D(v1.X - v2.X, v1.Y - v2.Y);
 }
 
 Vector2D operator*(const Vector2D & v1 , const double & scalar) {
-    return Vector2D(v1.XVect * scalar , v1.YVect * scalar);
+    return Vector2D(v1.X * scalar , v1.Y * scalar);
 }
 
 Vector2D operator*(const double & scalar , const Vector2D & v1) {
@@ -33,27 +33,27 @@ Vector2D operator*(const double & scalar , const Vector2D & v1) {
 }
 
 void Vector2D::operator+=(const Vector2D & other) {
-    this->XVect += other.XVect;
-    this->YVect += other.YVect;
+    this->X += other.X;
+    this->Y += other.Y;
 }
 
 void Vector2D::operator-=(const Vector2D & other) {
-    this->XVect -= other.XVect;
-    this->YVect -= other.YVect;
+    this->X -= other.X;
+    this->Y -= other.Y;
 }
 
 void Vector2D::operator *=(const double & scalar) {
-    this->XVect *= scalar;
-    this->YVect *= scalar;
+    this->X *= scalar;
+    this->Y *= scalar;
 }
 
 double Vector2D::Length() const {
-    double squareX = this->XVect * this->XVect;
-    double squareY = this->YVect * this->YVect;
+    double squareX = this->X * this->X;
+    double squareY = this->Y * this->Y;
     return sqrt(squareX + squareY);
 }
 
 Vector2D Vector2D::Normalize() const {
     double length = this->Length();
-    return Vector2D(this->XVect / length, this->YVect / length);
+    return Vector2D(this->X / length, this->Y / length);
 }
