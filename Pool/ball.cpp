@@ -2,7 +2,7 @@
 #include "math.h"
 #include <stdio.h>
 
-const double Theta = 0.000001;
+const double Theta = 0.001;
 
 CollisionState Ball::Collides(const Ball & ball) const {
 	double centersDistance = ball.Center.Distance(this->Center);

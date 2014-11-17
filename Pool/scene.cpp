@@ -6,57 +6,57 @@
 #include <cstdio>
 #include <bitset>
 
-#include "airResistance.h"
 #include "point2D.h"
 #include "vector2D.h"
 
-const double holeDiameter = 60.0;
-const double ballRadius = 18.0;
-const double firstBallX = 700.0;
-const double firstBallY = 350.0;
+const double HoleDiameter = 60.0;
+const double BallRadius = 16.0;
+const double FirstBallX = 700.0;
+const double FirstBallY = 350.0;
+const double Theta = 0.001;
 
 using namespace std;
 
 vector<Segment> Scene::tableMargins = {
-	Segment(Point2D(holeDiameter,holeDiameter / 2) , Point2D((1200 - holeDiameter) / 2 , holeDiameter / 2)),
-	Segment(Point2D((1200 - holeDiameter) / 2 + holeDiameter,holeDiameter / 2) , Point2D(1200 - holeDiameter, holeDiameter / 2)),
-	Segment(Point2D(holeDiameter,700 - holeDiameter / 2) , Point2D((1200 - holeDiameter) / 2 , 700 - holeDiameter / 2)),
-	Segment(Point2D((1200 - holeDiameter) / 2 + holeDiameter,700 - holeDiameter / 2) , Point2D(1200 - holeDiameter, 700 - holeDiameter / 2)),
-	Segment(Point2D(holeDiameter / 2, holeDiameter) , Point2D(holeDiameter / 2, 700 - holeDiameter)),
-	Segment(Point2D(1200 - holeDiameter / 2 , holeDiameter) , Point2D(1200 - holeDiameter / 2, 700 - holeDiameter))
+	Segment(Point2D(HoleDiameter,HoleDiameter / 2) , Point2D((1200 - HoleDiameter) / 2 , HoleDiameter / 2)),
+	Segment(Point2D((1200 - HoleDiameter) / 2 + HoleDiameter,HoleDiameter / 2) , Point2D(1200 - HoleDiameter, HoleDiameter / 2)),
+	Segment(Point2D(HoleDiameter,700 - HoleDiameter / 2) , Point2D((1200 - HoleDiameter) / 2 , 700 - HoleDiameter / 2)),
+	Segment(Point2D((1200 - HoleDiameter) / 2 + HoleDiameter,700 - HoleDiameter / 2) , Point2D(1200 - HoleDiameter, 700 - HoleDiameter / 2)),
+	Segment(Point2D(HoleDiameter / 2, HoleDiameter) , Point2D(HoleDiameter / 2, 700 - HoleDiameter)),
+	Segment(Point2D(1200 - HoleDiameter / 2 , HoleDiameter) , Point2D(1200 - HoleDiameter / 2, 700 - HoleDiameter))
 };
 
 vector<Circle> Scene::tablePockets = {
-	Circle(holeDiameter / 2, holeDiameter / 2, holeDiameter / 2),
-	Circle(1200 / 2, holeDiameter / 2, holeDiameter / 2),
-	Circle(1200 - holeDiameter / 2, holeDiameter / 2, holeDiameter / 2),
-	Circle(holeDiameter / 2, 700 - holeDiameter / 2, holeDiameter / 2),
-	Circle(1200 / 2, 700 - holeDiameter / 2, holeDiameter / 2),
-	Circle(1200 - holeDiameter / 2, 700 - holeDiameter / 2, holeDiameter / 2)
+	Circle(HoleDiameter / 2, HoleDiameter / 2, HoleDiameter / 2),
+	Circle(1200 / 2, HoleDiameter / 2, HoleDiameter / 2),
+	Circle(1200 - HoleDiameter / 2, HoleDiameter / 2, HoleDiameter / 2),
+	Circle(HoleDiameter / 2, 700 - HoleDiameter / 2, HoleDiameter / 2),
+	Circle(1200 / 2, 700 - HoleDiameter / 2, HoleDiameter / 2),
+	Circle(1200 - HoleDiameter / 2, 700 - HoleDiameter / 2, HoleDiameter / 2)
 };
 
 vector<Ball> Scene::balls = {
-    Ball(Vector2D(3.5 * 600.0, 0.0),Point2D(350,300.0),ballRadius),
+    Ball(Vector2D(6 * 600.0, 0.0),Point2D(350,300.0),BallRadius),
 
-	Ball(Vector2D(-0.0,0.0),Point2D(firstBallX,firstBallY),ballRadius),
+	Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX,FirstBallY),BallRadius),
 
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 2 * ballRadius,firstBallY - ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 2 * ballRadius,firstBallY + ballRadius),ballRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 2 * BallRadius,FirstBallY - BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 2 * BallRadius,FirstBallY + BallRadius),BallRadius),
 
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 2 * 2 * ballRadius,firstBallY - 2 * ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 2 * 2 * ballRadius,firstBallY),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 2 * 2 * ballRadius,firstBallY + 2 * ballRadius),ballRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 2 * 2 * BallRadius,FirstBallY - 2 * BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 2 * 2 * BallRadius,FirstBallY),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 2 * 2 * BallRadius,FirstBallY + 2 * BallRadius),BallRadius),
 
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 3 * 2 * ballRadius,firstBallY - 3 * ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 3 * 2 * ballRadius,firstBallY - ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 3 * 2 * ballRadius,firstBallY + ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 3 * 2 * ballRadius,firstBallY + 3 * ballRadius),ballRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 3 * 2 * BallRadius,FirstBallY - 3 * BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 3 * 2 * BallRadius,FirstBallY - BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 3 * 2 * BallRadius,FirstBallY + BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 3 * 2 * BallRadius,FirstBallY + 3 * BallRadius),BallRadius),
 
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY - 4 * ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY - 2 * ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY + 2 * ballRadius),ballRadius),
-    Ball(Vector2D(-0.0,0.0),Point2D(firstBallX + 4 * 2 * ballRadius,firstBallY + 4 * ballRadius),ballRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 4 * 2 * BallRadius,FirstBallY - 4 * BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 4 * 2 * BallRadius,FirstBallY - 2 * BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 4 * 2 * BallRadius,FirstBallY),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 4 * 2 * BallRadius,FirstBallY + 2 * BallRadius),BallRadius),
+    Ball(Vector2D(-0.0,0.0),Point2D(FirstBallX + 4 * 2 * BallRadius,FirstBallY + 4 * BallRadius),BallRadius),
 };
 
 double Scene::LastFrameDuration = 0;
@@ -88,7 +88,6 @@ void Scene::Movement(void) {
 
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
             Ball * const ball2 = &balls[ballIndex2];
-//            ball2->Collide(*ball1);
 
             ball1->Center.X += ball1->Direction.X * frameRatio;
             ball1->Center.Y += ball1->Direction.Y * frameRatio;
@@ -105,55 +104,12 @@ void Scene::Movement(void) {
             switch (collisionState) {
 
                 case Overlapping : {
-                    double a = ball1->Center.X;
-                    double b = ball1->Direction.X;
-                    double c = ball2->Center.X;
-                    double d = ball2->Direction.X;
-
-                    double e = ball1->Center.Y;
-                    double f = ball1->Direction.Y;
-                    double g = ball2->Center.Y;
-                    double h = ball2->Direction.Y;
-
-                    double cd = 0.0;
-
-                    double A = (b - d) * (b - d) + (f - h) * (f - h);
-                    double B = 2 * (a - c) * ( b - d) + 2 * (e - g) * (f - h);
-                    double C = (a - c) * (a - c) + (e - g) * (e - g) - (ball1->Radius + ball1->Radius) * (ball1->Radius + ball1->Radius);
-
-                    double delta = B * B - 4 * A * C;
-                    if (delta < 0) {
-                        continue;
-                    }
-
-                    double s1 = ( -1 * B + sqrt(delta) ) / (2 * A);
-                    double s2 = ( -1 * B - sqrt(delta) ) / (2 * A);
-                    if (s1 > 0 && s1 <= 1) {
-                        cd = s1;
-                    }
-
-                    if (s2 > 0 && s2 <= 1) {
-                        cd = s2;
-                    }
-
-                    ball1->Center.X += ball1->Direction.X * frameRatio * cd;
-                    ball1->Center.Y += ball1->Direction.Y * frameRatio * cd;
-                    ball2->Center.X += ball2->Direction.X * frameRatio * cd;
-                    ball2->Center.Y += ball2->Direction.Y * frameRatio * cd;
                     ball1->Collide(*ball2);
-                    ball1->Center.X += ball1->Direction.X * frameRatio * (1 - cd);
-                    ball1->Center.Y += ball1->Direction.Y * frameRatio * (1 - cd);
-                    ball2->Center.X += ball2->Direction.X * frameRatio * (1 - cd);
-                    ball2->Center.Y += ball2->Direction.Y * frameRatio * (1 - cd);
                     break;
                 }
 
                 case Tangent : {
                     ball1->Collide(*ball2);
-                    ball1->Center.X += ball1->Direction.X * frameRatio;
-                    ball1->Center.Y += ball1->Direction.Y * frameRatio;
-                    ball2->Center.X += ball2->Direction.X * frameRatio;
-                    ball2->Center.Y += ball2->Direction.Y * frameRatio;
                     break;
                 }
 
@@ -169,7 +125,14 @@ void Scene::Movement(void) {
         ball1->Center.X += ball1->Direction.X * frameRatio;
         ball1->Center.Y += ball1->Direction.Y * frameRatio;
         ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
+        if (ball1->Direction.X < Theta && ball1->Direction.X > -Theta) {
+            ball1->Direction.X = 0.0;
+        }
+        if (ball1->Direction.Y < Theta && ball1->Direction.Y > -Theta) {
+            ball1->Direction.Y = 0.0;
+        }
     }
+
 }
 
 void Scene::Render(void) {
