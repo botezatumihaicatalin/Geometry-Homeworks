@@ -9,5 +9,5 @@
 
 double Vector2D::CrossProduct(const Vector2D & other) const
 {
-	return (this->XVect * other.YVect - this->YVect * other.XVect);
+	return (this->X * other.Y - this->Y * other.X);
 }

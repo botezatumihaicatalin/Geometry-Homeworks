@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -std=c++11 -fmessage-length=0
 
-OBJS = main.o circle.o scene.o segment.o vector2D.o point2D.o ball.o
+OBJS = main.o circle.o scene.o segment.o vector2D.o point2D.o ball.o cue.o constants.o 
 
 LIBS = -lGL -lGLU -lglut
 

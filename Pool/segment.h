@@ -2,6 +2,7 @@
 #define SEGMENT_H
 
 #include "point2D.h"
+#include "vector2D.h"
 
 class Segment {
 public:
@@ -13,6 +14,8 @@ public:
 	bool Intersects(const Segment & otherSegment) const;
 	Point2D IntersectionPoint(const Segment & otherSegment) const;
 	double PointOnSegment(const Point2D & point) const;
+	Vector2D GetLeftNormal() const;
+	Vector2D GetRightNormal() const;
 };
 
 #endif /* SEGMENT_H */

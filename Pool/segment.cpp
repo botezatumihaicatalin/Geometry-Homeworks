@@ -33,3 +33,13 @@ Point2D Segment::IntersectionPoint(const Segment & otherSegment) const {
 
 	return Point2D(intersectionX, intersectionY);
 }
+
+Vector2D Segment::GetLeftNormal() const {
+    Vector2D normal(this->LeftPoint, this->RightPoint);
+    return Vector2D(-1 * normal.Y , normal.X);
+}
+
+Vector2D Segment::GetRightNormal() const {
+    Vector2D normal(this->LeftPoint, this->RightPoint);
+    return Vector2D(normal.Y, -1 * normal.X);
+}

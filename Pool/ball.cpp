@@ -1,13 +1,12 @@
 #include "ball.h"
 #include "math.h"
 #include <stdio.h>
-
-const double Theta = 0.001;
+#include "constants.h"
 
 CollisionState Ball::Collides(const Ball & ball) const {
 	double centersDistance = ball.Center.Distance(this->Center);
 	double sumRadiuses = ball.Radius + this->Radius;
-	if (centersDistance - sumRadiuses >= -1 * Theta && centersDistance - sumRadiuses <= Theta) {
+	if (centersDistance - sumRadiuses >= -1 * Constants::CollisionTheta && centersDistance - sumRadiuses <= Constants::CollisionTheta) {
 	    return Tangent;
 	} else if (centersDistance < sumRadiuses) {
 	    return Overlapping;
@@ -27,19 +26,15 @@ CollisionState Ball::Collides(const Segment & segment) const {
     double D = translatedSegment.LeftPoint.X * translatedSegment.RightPoint.Y - translatedSegment.LeftPoint.Y * translatedSegment.RightPoint.X;
     double delta = this->Radius * this->Radius * dr * dr - D * D;
 
-    if (-1 * Theta <= delta && delta <= Theta) {
+    if (-1 * Constants::CollisionTheta <= delta && delta <= Constants::CollisionTheta) {
         return Tangent;
-    } else if (delta > Theta) {
+    } else if (delta > Constants::CollisionTheta) {
         return Overlapping;
     }
     return NoCollision;
 }
 
 void Ball::Collide(Ball & ball) {
-
-    if (this->Collides(ball) == NoCollision) {
-        return;
-    }
 
     Vector2D collision = Vector2D(ball.Center, this->Center);
     collision = collision.Normalize();
@@ -60,14 +55,7 @@ void Ball::Collide(Ball & ball) {
 
 void Ball::Collide(const Segment & line) {
 
-    if (this->Collides(line) == NoCollision) {
-        return;
-    }
-
-    Vector2D normal(line.LeftPoint, line.RightPoint);
-    double aux = normal.X;
-    normal.X = -1 * normal.Y;
-    normal.Y = aux;
+    Vector2D normal(line.GetLeftNormal());
 
     Vector2D vect(line.LeftPoint , this->Center);
 
