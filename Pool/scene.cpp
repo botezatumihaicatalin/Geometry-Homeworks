@@ -9,6 +9,7 @@
 #include "point2D.h"
 #include "vector2D.h"
 #include "constants.h"
+#include <limits>
 
 using namespace std;
 
@@ -167,6 +168,7 @@ void Scene::Render(void) {
 	}
 
 	if (!ballsMoving) {
+
 	    glColor3d(0.0,0.0,1.0);
         glLineWidth(6.0);
         glBegin(GL_LINES);
@@ -177,48 +179,59 @@ void Scene::Render(void) {
         Ball cueBallCopy(balls[0]);
         cueBallCopy.Direction = Vector2D(-1 * cue.Direction.X * 1200 , -1 * cue.Direction.Y * 1200);
 
+        double minimumCollisionTime = numeric_limits<double>::max();
+        Ball colidedBall(balls[0]);
+
         for (unsigned int ballIndex1 = 1; ballIndex1 < balls.size(); ballIndex1 ++ ) {
 
-            Ball ball = balls[ballIndex1];
-
-            double collisionTime = ball.PredictCollisionTime(cueBallCopy);
-
-            if (collisionTime >= 0) {
-
-                cueBallCopy.Direction *= collisionTime;
-                ball.Direction *= collisionTime;
-
-                drawCircle(cueBallCopy.Center.X + cueBallCopy.Direction.X , cueBallCopy.Center.Y + cueBallCopy.Direction.Y , cueBallCopy.Radius);
-
-                Ball anotherCopy(cueBallCopy);
-                anotherCopy.Center.X += anotherCopy.Direction.X;
-                anotherCopy.Center.Y += anotherCopy.Direction.Y;
-                ball.Center.X += ball.Direction.X;
-                ball.Center.X += ball.Direction.Y;
-
-                ball.Collide(anotherCopy);
-
-                glBegin(GL_LINES);
-                glVertex2d(ball.Center.X,ball.Center.Y);
-                glVertex2d(ball.Center.X + ball.Direction.X,ball.Center.Y + ball.Direction.Y);
-                glEnd();
-
-                glBegin(GL_LINES);
-                glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
-                glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.X,anotherCopy.Center.Y + anotherCopy.Direction.Y);
-                glEnd();
-
-                break;
+            double collisionTime = cueBallCopy.PredictCollisionTime(balls[ballIndex1]);
+            if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
+                minimumCollisionTime = collisionTime;
+                colidedBall = balls[ballIndex1];
             }
         }
 
-        Point2D pointOnCircle(balls[0].Center.X - cue.Direction.X * balls[0].Radius , balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
+        if (minimumCollisionTime != numeric_limits<double>::max()) {
+            cueBallCopy.Direction *= minimumCollisionTime;
+            colidedBall.Direction *= minimumCollisionTime;
 
+            drawCircle(cueBallCopy.Center.X + cueBallCopy.Direction.X , cueBallCopy.Center.Y + cueBallCopy.Direction.Y , cueBallCopy.Radius);
+
+            Ball anotherCopy(cueBallCopy);
+            anotherCopy.Center.X += anotherCopy.Direction.X;
+            anotherCopy.Center.Y += anotherCopy.Direction.Y;
+            colidedBall.Center.X += colidedBall.Direction.X;
+            colidedBall.Center.X += colidedBall.Direction.Y;
+
+            colidedBall.Collide(anotherCopy);
+
+            glEnable(GL_LINE_STIPPLE);
+            glLineStipple(3, 0x9999);
+            glLineWidth(3.0);
+
+            glBegin(GL_LINES);
+            glVertex2d(colidedBall.Center.X,colidedBall.Center.Y);
+            glVertex2d(colidedBall.Center.X + colidedBall.Direction.X,colidedBall.Center.Y + colidedBall.Direction.Y);
+            glEnd();
+
+            glBegin(GL_LINES);
+            glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
+            glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.X,anotherCopy.Center.Y + anotherCopy.Direction.Y);
+            glEnd();
+
+            glDisable(GL_LINE_STIPPLE);
+        }
+
+        glEnable(GL_LINE_STIPPLE);
+        glLineStipple(3, 0x9999);
         glLineWidth(1.0);
+
         glBegin(GL_LINES);
-        glVertex2d(pointOnCircle.X , pointOnCircle.Y);
+        glVertex2d(balls[0].Center.X - cue.Direction.X * balls[0].Radius , balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
         glVertex2d(cueBallCopy.Center.X + cueBallCopy.Direction.X, cueBallCopy.Center.Y + cueBallCopy.Direction.Y);
         glEnd();
+
+        glDisable(GL_LINE_STIPPLE);
 
 	}
 
