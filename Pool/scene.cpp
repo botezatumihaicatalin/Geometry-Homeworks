@@ -173,6 +173,53 @@ void Scene::Render(void) {
         glVertex2d(cue.Head.X ,cue.Head.Y);
         glVertex2d(cue.Head.X + cue.Direction.X * cue.Length , cue.Head.Y + cue.Direction.Y * cue.Length);
         glEnd();
+
+        Ball cueBallCopy(balls[0]);
+        cueBallCopy.Direction = Vector2D(-1 * cue.Direction.X * 1200 , -1 * cue.Direction.Y * 1200);
+
+        for (unsigned int ballIndex1 = 1; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+
+            Ball ball = balls[ballIndex1];
+
+            double collisionTime = ball.PredictCollisionTime(cueBallCopy);
+
+            if (collisionTime >= 0) {
+
+                cueBallCopy.Direction *= collisionTime;
+                ball.Direction *= collisionTime;
+
+                drawCircle(cueBallCopy.Center.X + cueBallCopy.Direction.X , cueBallCopy.Center.Y + cueBallCopy.Direction.Y , cueBallCopy.Radius);
+
+                Ball anotherCopy(cueBallCopy);
+                anotherCopy.Center.X += anotherCopy.Direction.X;
+                anotherCopy.Center.Y += anotherCopy.Direction.Y;
+                ball.Center.X += ball.Direction.X;
+                ball.Center.X += ball.Direction.Y;
+
+                ball.Collide(anotherCopy);
+
+                glBegin(GL_LINES);
+                glVertex2d(ball.Center.X,ball.Center.Y);
+                glVertex2d(ball.Center.X + ball.Direction.X,ball.Center.Y + ball.Direction.Y);
+                glEnd();
+
+                glBegin(GL_LINES);
+                glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
+                glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.X,anotherCopy.Center.Y + anotherCopy.Direction.Y);
+                glEnd();
+
+                break;
+            }
+        }
+
+        Point2D pointOnCircle(balls[0].Center.X - cue.Direction.X * balls[0].Radius , balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
+
+        glLineWidth(1.0);
+        glBegin(GL_LINES);
+        glVertex2d(pointOnCircle.X , pointOnCircle.Y);
+        glVertex2d(cueBallCopy.Center.X + cueBallCopy.Direction.X, cueBallCopy.Center.Y + cueBallCopy.Direction.Y);
+        glEnd();
+
 	}
 
 	glutSwapBuffers();

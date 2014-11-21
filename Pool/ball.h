@@ -21,6 +21,7 @@ public:
 	CollisionState Collides(const Segment & segment) const;
 	void Collide(Ball & ball);
 	void Collide(const Segment & line);
+	double PredictCollisionTime(const Ball & ball) const;
 };
 
 #endif
