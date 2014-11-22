@@ -19,7 +19,32 @@ vector<Segment> Scene::tableMargins = {
 	Segment(Point2D(Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 , 700 - Constants::HoleDiameter / 2)),
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D(1200 - Constants::HoleDiameter, 700 - Constants::HoleDiameter / 2)),
 	Segment(Point2D(Constants::HoleDiameter / 2, Constants::HoleDiameter) , Point2D(Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
-	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter))
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
+
+	Segment(Point2D(Constants::HoleDiameter,Constants::HoleDiameter / 2), Point2D(Constants::HoleDiameter + Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 , Constants::HoleDiameter / 2), Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, Constants::HoleDiameter / 2)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+
+	Segment(Point2D(Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D(Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness) , Point2D((1200 - Constants::HoleDiameter) / 2 , 700 - Constants::HoleDiameter / 2)),
+	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, 700 - Constants::HoleDiameter / 2)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness), Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+
+	Segment(Point2D(Constants::HoleDiameter / 2, Constants::HoleDiameter) , Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness) , Point2D(Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
+	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness), Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness)),
+
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness), Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
+
 };
 
 vector<Circle> Scene::tablePockets = {
@@ -61,21 +86,49 @@ bool Scene::ballsMoving = false;
 
 double Scene::LastFrameDuration = 0;
 
-void drawCircle(double x , double y , double radius) {
+void drawBall(double x , double y , double radius) {
 
 	const double DEG2RAD = 3.14159/180;
 
 	glColor3d(0.0,0.0,1.0);
-	glLineWidth(3.0);
-	glBegin(GL_LINE_LOOP);
+	glPolygonMode(GL_FRONT,GL_FILL);
+	glBegin(GL_POLYGON);
 
 	for (double i = 0; i < 360; i+= 1)
 	{
 		float degInRad = i*DEG2RAD;
 		glVertex2f(x + cos(degInRad)*radius,y + sin(degInRad)*radius);
 	}
-
 	glEnd();
+	glPolygonMode(GL_FRONT,GL_POINT);
+	glLineWidth(3.0);
+	glBegin(GL_POLYGON);
+
+    for (double i = 0; i < 360; i+= 1)
+    {
+        float degInRad = i*DEG2RAD;
+        glVertex2f(x + cos(degInRad)*radius,y + sin(degInRad)*radius);
+    }
+    glEnd();
+
+}
+
+void drawCircle(double x , double y , double radius) {
+
+    const double DEG2RAD = 3.14159/180;
+
+    glColor3d(0.0,0.0,1.0);
+    glPolygonMode(GL_FRONT,GL_LINES);
+    glLineWidth(3.0);
+    glBegin(GL_LINE_LOOP);
+
+    for (double i = 0; i < 360; i+= 1)
+    {
+        float degInRad = i*DEG2RAD;
+        glVertex2f(x + cos(degInRad)*radius,y + sin(degInRad)*radius);
+    }
+    glEnd();
+
 }
 
 void Scene::Movement(void) {
@@ -164,7 +217,7 @@ void Scene::Render(void) {
 	}
 
 	for (const Ball & ball : balls) {
-		drawCircle(ball.Center.X, ball.Center.Y, ball.Radius);
+		drawBall(ball.Center.X, ball.Center.Y, ball.Radius);
 	}
 
 	if (!ballsMoving) {
@@ -203,6 +256,17 @@ void Scene::Render(void) {
             colidedBall.Center.X += colidedBall.Direction.X;
             colidedBall.Center.X += colidedBall.Direction.Y;
 
+            double length = anotherCopy.Direction.Length();
+            double remaining = 700 - length;
+
+            if (remaining > 200) {
+                remaining = 200;
+            }
+
+            if (remaining < 50) {
+                remaining = 50;
+            }
+
             colidedBall.Collide(anotherCopy);
 
             glEnable(GL_LINE_STIPPLE);
@@ -211,12 +275,12 @@ void Scene::Render(void) {
 
             glBegin(GL_LINES);
             glVertex2d(colidedBall.Center.X,colidedBall.Center.Y);
-            glVertex2d(colidedBall.Center.X + colidedBall.Direction.X,colidedBall.Center.Y + colidedBall.Direction.Y);
+            glVertex2d(colidedBall.Center.X + colidedBall.Direction.Normalize().X * remaining,colidedBall.Center.Y + colidedBall.Direction.Normalize().Y * remaining);
             glEnd();
 
             glBegin(GL_LINES);
             glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
-            glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.X,anotherCopy.Center.Y + anotherCopy.Direction.Y);
+            glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining,anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
             glEnd();
 
             glDisable(GL_LINE_STIPPLE);
