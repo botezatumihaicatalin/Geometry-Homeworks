@@ -68,32 +68,37 @@ void Ball::Collide(Ball & ball) {
 
 void Ball::Collide(const Segment & line) {
 
-    Vector2D normal(line.GetLeftNormal());
+    Vector2D lineNormal = line.GetLeftNormal();
 
-    Vector2D vect(line.LeftPoint, this->Center);
+    this->Center.X += this->Direction.X;
+    this->Center.Y += this->Direction.Y;
 
-    double cos = normal.DotProduct(vect) / (normal.Length() * vect.Length());
-    double projectionDistance = cos * vect.Length();
-    Vector2D projectedNormal(normal.X * projectionDistance / normal.Length(), normal.Y * projectionDistance / normal.Length());
+    double d1 = -1 * (lineNormal.DotProduct(Vector2D(line.RightPoint , this->Center))) / lineNormal.Length();
 
-    this->Direction = this->Direction + 2 * projectedNormal;
+    this->Center.X -= this->Direction.X;
+    this->Center.Y -= this->Direction.Y;
+
+    this->Direction = this->Direction + 2 * lineNormal.Normalize() * d1;
 }
 
 double Ball::PredictCollisionTime(const Segment & segment) const {
 
     Ball ball1(*this);
     Ball ball2(ball1.Direction , ball1.Center.X + ball1.Direction.X , ball1.Center.Y+ ball1.Direction.Y , ball1.Radius);
-
-    if (!Segment(ball1.Center , ball2.Center).Intersects(segment)) {
-        return -1;
-    }
+    Vector2D bigTrajectory = ball1.Direction.Normalize() * 3000;
 
     if (this->Direction.X == 0.0 && this->Direction.Y == 0.0) {
         return -1;
     }
 
-    double d1 = segment.GetLeftNormal().DotProduct(Vector2D(segment.RightPoint , ball1.Center));
-    double d2 = segment.GetLeftNormal().DotProduct(Vector2D(segment.RightPoint , ball2.Center));
+    if (!Segment(ball1.Center,Point2D(ball1.Center.X + bigTrajectory.X , ball1.Center.Y + bigTrajectory.Y)).Intersects(segment)) {
+        return -1;
+    }
+
+    Vector2D segmentNormal = segment.GetLeftNormal();
+
+    double d1 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball1.Center)) / segmentNormal.Length();
+    double d2 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball2.Center)) / segmentNormal.Length();
 
     return min(( -1 * this->Radius - d1) / (d2 - d1) , (this->Radius - d1) / (d2 - d1));
 

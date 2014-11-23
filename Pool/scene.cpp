@@ -139,6 +139,16 @@ void Scene::Movement(void) {
 
         Ball * const ball1 = &balls[ballIndex1];
 
+        for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+            Segment * const segment = &tableMargins[tableMarginIndex];
+            double collisionTime = ball1->PredictCollisionTime(*segment);
+            if (collisionTime >= 0 && collisionTime < frameRatio) {
+                ball1->Collide(*segment);
+            }else if (ball1->Collides(*segment) != NoCollision) {
+                ball1->Collides(*segment);
+            }
+        }
+
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
             Ball * const ball2 = &balls[ballIndex2];
 
@@ -171,12 +181,7 @@ void Scene::Movement(void) {
                 }
             }
         }
-        for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
-            Segment * const segment = &tableMargins[tableMarginIndex];
-            if (ball1->Collides(*segment) != NoCollision) {
-                ball1->Collide(*segment);
-            }
-        }
+
         ball1->Center.X += ball1->Direction.X * frameRatio;
         ball1->Center.Y += ball1->Direction.Y * frameRatio;
         ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
@@ -201,41 +206,41 @@ void Scene::Movement(void) {
 
 void Scene::Render(void) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (const Segment & margin : tableMargins) {
-		glColor3d(0.0,0.0,1.0);
-		glLineWidth(3.0);
-		glBegin(GL_LINES);
-		glVertex2d(margin.LeftPoint.X , margin.LeftPoint.Y);
-		glVertex2d(margin.RightPoint.X , margin.RightPoint.Y);
-		glEnd();
-	}
+    for (const Segment & margin : tableMargins) {
+        glColor3d(0.0, 0.0, 1.0);
+        glLineWidth(3.0);
+        glBegin(GL_LINES);
+        glVertex2d(margin.LeftPoint.X, margin.LeftPoint.Y);
+        glVertex2d(margin.RightPoint.X, margin.RightPoint.Y);
+        glEnd();
+    }
 
-	for (const Circle & circle : tablePockets) {
-		drawCircle(circle.Center.X , circle.Center.Y , circle.Radius);
-	}
+    for (const Circle & circle : tablePockets) {
+        drawCircle(circle.Center.X, circle.Center.Y, circle.Radius);
+    }
 
-	for (const Ball & ball : balls) {
-		drawBall(ball.Center.X, ball.Center.Y, ball.Radius);
-	}
+    for (const Ball & ball : balls) {
+        drawBall(ball.Center.X, ball.Center.Y, ball.Radius);
+    }
 
-	if (!ballsMoving) {
+    if (!ballsMoving) {
 
-	    glColor3d(0.0,0.0,1.0);
+        glColor3d(0.0, 0.0, 1.0);
         glLineWidth(6.0);
         glBegin(GL_LINES);
-        glVertex2d(cue.Head.X ,cue.Head.Y);
-        glVertex2d(cue.Head.X + cue.Direction.X * cue.Length , cue.Head.Y + cue.Direction.Y * cue.Length);
+        glVertex2d(cue.Head.X, cue.Head.Y);
+        glVertex2d(cue.Head.X + cue.Direction.X * cue.Length, cue.Head.Y + cue.Direction.Y * cue.Length);
         glEnd();
 
         Ball cueBallCopy(balls[0]);
-        cueBallCopy.Direction = Vector2D(-1 * cue.Direction.X * 1200 , -1 * cue.Direction.Y * 1200);
+        cueBallCopy.Direction = Vector2D(-1 * cue.Direction.X * 1200, -1 * cue.Direction.Y * 1200);
 
         double minimumCollisionTime = numeric_limits<double>::max();
         Ball colidedBall(balls[0]);
 
-        for (unsigned int ballIndex1 = 1; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+        for (unsigned int ballIndex1 = 1; ballIndex1 < balls.size(); ballIndex1++) {
 
             double collisionTime = cueBallCopy.PredictCollisionTime(balls[ballIndex1]);
             if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
@@ -245,10 +250,11 @@ void Scene::Render(void) {
         }
 
         if (minimumCollisionTime != numeric_limits<double>::max()) {
+
             cueBallCopy.Direction *= minimumCollisionTime;
             colidedBall.Direction *= minimumCollisionTime;
 
-            drawCircle(cueBallCopy.Center.X + cueBallCopy.Direction.X , cueBallCopy.Center.Y + cueBallCopy.Direction.Y , cueBallCopy.Radius);
+            drawCircle(cueBallCopy.Center.X + cueBallCopy.Direction.X, cueBallCopy.Center.Y + cueBallCopy.Direction.Y, cueBallCopy.Radius);
 
             Ball anotherCopy(cueBallCopy);
             anotherCopy.Center.X += anotherCopy.Direction.X;
@@ -274,22 +280,25 @@ void Scene::Render(void) {
             glLineWidth(3.0);
 
             glBegin(GL_LINES);
-            glVertex2d(colidedBall.Center.X,colidedBall.Center.Y);
-            glVertex2d(colidedBall.Center.X + colidedBall.Direction.Normalize().X * remaining,colidedBall.Center.Y + colidedBall.Direction.Normalize().Y * remaining);
+            glVertex2d(colidedBall.Center.X, colidedBall.Center.Y);
+            glVertex2d(colidedBall.Center.X + colidedBall.Direction.Normalize().X * remaining, colidedBall.Center.Y + colidedBall.Direction.Normalize().Y * remaining);
             glEnd();
 
             glBegin(GL_LINES);
-            glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
-            glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining,anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
+            glVertex2d(anotherCopy.Center.X, anotherCopy.Center.Y);
+            glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining, anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
             glEnd();
 
             glDisable(GL_LINE_STIPPLE);
-        } else {
+        }
+        else {
 
+            minimumCollisionTime = numeric_limits<double>::max();
             unsigned int collidedSegmentIndex = -1;
 
-            for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+            for (unsigned int tableMarginIndex = 6; tableMarginIndex < tableMargins.size(); tableMarginIndex++) {
                 double collisionTime = cueBallCopy.PredictCollisionTime(tableMargins[tableMarginIndex]);
+
                 if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
                     minimumCollisionTime = collisionTime;
                     collidedSegmentIndex = tableMarginIndex;
@@ -303,8 +312,8 @@ void Scene::Render(void) {
                 Ball anotherCopy(cueBallCopy);
                 anotherCopy.Center.X += anotherCopy.Direction.X;
                 anotherCopy.Center.Y += anotherCopy.Direction.Y;
-                drawCircle(anotherCopy.Center.X , anotherCopy.Center.Y , anotherCopy.Radius);
 
+                drawCircle(anotherCopy.Center.X, anotherCopy.Center.Y, anotherCopy.Radius);
 
                 double length = anotherCopy.Direction.Length();
                 double remaining = 700 - length;
@@ -324,9 +333,11 @@ void Scene::Render(void) {
                 glLineWidth(3.0);
 
                 glBegin(GL_LINES);
-                glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
-                glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining,anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
+                glVertex2d(anotherCopy.Center.X, anotherCopy.Center.Y);
+                glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining, anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
                 glEnd();
+
+                glDisable(GL_LINE_STIPPLE);
             }
         }
 
@@ -335,13 +346,13 @@ void Scene::Render(void) {
         glLineWidth(1.0);
 
         glBegin(GL_LINES);
-        glVertex2d(balls[0].Center.X - cue.Direction.X * balls[0].Radius , balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
+        glVertex2d(balls[0].Center.X - cue.Direction.X * balls[0].Radius, balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
         glVertex2d(cueBallCopy.Center.X + cueBallCopy.Direction.X, cueBallCopy.Center.Y + cueBallCopy.Direction.Y);
         glEnd();
 
         glDisable(GL_LINE_STIPPLE);
 
-	}
+    }
 
-	glutSwapBuffers();
+    glutSwapBuffers();
 }
