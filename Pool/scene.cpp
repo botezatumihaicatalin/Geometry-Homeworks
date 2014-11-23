@@ -284,6 +284,50 @@ void Scene::Render(void) {
             glEnd();
 
             glDisable(GL_LINE_STIPPLE);
+        } else {
+
+            unsigned int collidedSegmentIndex = -1;
+
+            for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+                double collisionTime = cueBallCopy.PredictCollisionTime(tableMargins[tableMarginIndex]);
+                if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
+                    minimumCollisionTime = collisionTime;
+                    collidedSegmentIndex = tableMarginIndex;
+                }
+            }
+
+            if (minimumCollisionTime != numeric_limits<double>::max()) {
+
+                cueBallCopy.Direction *= minimumCollisionTime;
+
+                Ball anotherCopy(cueBallCopy);
+                anotherCopy.Center.X += anotherCopy.Direction.X;
+                anotherCopy.Center.Y += anotherCopy.Direction.Y;
+                drawCircle(anotherCopy.Center.X , anotherCopy.Center.Y , anotherCopy.Radius);
+
+
+                double length = anotherCopy.Direction.Length();
+                double remaining = 700 - length;
+
+                if (remaining > 200) {
+                    remaining = 200;
+                }
+
+                if (remaining < 50) {
+                    remaining = 50;
+                }
+
+                anotherCopy.Collide(tableMargins[collidedSegmentIndex]);
+
+                glEnable(GL_LINE_STIPPLE);
+                glLineStipple(3, 0x9999);
+                glLineWidth(3.0);
+
+                glBegin(GL_LINES);
+                glVertex2d(anotherCopy.Center.X,anotherCopy.Center.Y);
+                glVertex2d(anotherCopy.Center.X + anotherCopy.Direction.Normalize().X * remaining,anotherCopy.Center.Y + anotherCopy.Direction.Normalize().Y * remaining);
+                glEnd();
+            }
         }
 
         glEnable(GL_LINE_STIPPLE);

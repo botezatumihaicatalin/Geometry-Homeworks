@@ -36,10 +36,10 @@ Point2D Segment::IntersectionPoint(const Segment & otherSegment) const {
 
 Vector2D Segment::GetLeftNormal() const {
     Vector2D normal(this->LeftPoint, this->RightPoint);
-    return Vector2D(-1 * normal.Y , normal.X);
+    return Vector2D(-1 * normal.Y , normal.X).Normalize();
 }
 
 Vector2D Segment::GetRightNormal() const {
     Vector2D normal(this->LeftPoint, this->RightPoint);
-    return Vector2D(normal.Y, -1 * normal.X);
+    return Vector2D(normal.Y, -1 * normal.X).Normalize();
 }

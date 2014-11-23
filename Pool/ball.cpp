@@ -79,6 +79,26 @@ void Ball::Collide(const Segment & line) {
     this->Direction = this->Direction + 2 * projectedNormal;
 }
 
+double Ball::PredictCollisionTime(const Segment & segment) const {
+
+    Ball ball1(*this);
+    Ball ball2(ball1.Direction , ball1.Center.X + ball1.Direction.X , ball1.Center.Y+ ball1.Direction.Y , ball1.Radius);
+
+    if (!Segment(ball1.Center , ball2.Center).Intersects(segment)) {
+        return -1;
+    }
+
+    if (this->Direction.X == 0.0 && this->Direction.Y == 0.0) {
+        return -1;
+    }
+
+    double d1 = segment.GetLeftNormal().DotProduct(Vector2D(segment.RightPoint , ball1.Center));
+    double d2 = segment.GetLeftNormal().DotProduct(Vector2D(segment.RightPoint , ball2.Center));
+
+    return min(( -1 * this->Radius - d1) / (d2 - d1) , (this->Radius - d1) / (d2 - d1));
+
+}
+
 double Ball::PredictCollisionTime(const Ball & ball) const {
 
     double a = ball.Center.X;
