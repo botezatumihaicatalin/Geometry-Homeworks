@@ -32,6 +32,10 @@ Vector2D operator*(const double & scalar , const Vector2D & v1) {
     return v1 * scalar;
 }
 
+Vector2D operator/(const Vector2D & v1, const double & scalar) {
+    return Vector2D(v1.X / scalar , v1.Y / scalar);
+}
+
 void Vector2D::operator+=(const Vector2D & other) {
     this->X += other.X;
     this->Y += other.Y;
@@ -45,6 +49,11 @@ void Vector2D::operator-=(const Vector2D & other) {
 void Vector2D::operator *=(const double & scalar) {
     this->X *= scalar;
     this->Y *= scalar;
+}
+
+void Vector2D::operator /=(const double & scalar) {
+    this->X /= scalar;
+    this->Y /= scalar;
 }
 
 double Vector2D::Length() const {

@@ -14,10 +14,12 @@ public:
 	friend Vector2D operator-(const Vector2D & v1 , const Vector2D & v2);
 	friend Vector2D operator*(const Vector2D & v1 , const double & scalar);
     friend Vector2D operator*(const double & scalar , const Vector2D & v1);
+    friend Vector2D operator/(const Vector2D & v1 , const double & scalar);
 
 	void operator+=(const Vector2D & other);
 	void operator-=(const Vector2D & other);
 	void operator*=(const double & scalar);
+	void operator/=(const double & scalar);
 
 	double Length() const;
 	Vector2D Normalize() const;

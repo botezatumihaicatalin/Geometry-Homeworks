@@ -173,7 +173,7 @@ void Scene::Movement(void) {
         }
         for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
             Segment * const segment = &tableMargins[tableMarginIndex];
-            if (ball1->Collides(*segment)) {
+            if (ball1->Collides(*segment) != NoCollision) {
                 ball1->Collide(*segment);
             }
         }

@@ -19,23 +19,32 @@ CollisionState Ball::Collides(const Ball & ball) const {
 
 CollisionState Ball::Collides(const Segment & segment) const {
 
-    Segment translatedSegment(segment);
-    translatedSegment.LeftPoint.X -= this->Center.X;
-    translatedSegment.RightPoint.X -= this->Center.X;
-    translatedSegment.LeftPoint.Y -= this->Center.Y;
-    translatedSegment.RightPoint.Y -= this->Center.Y;
+    Vector2D leftCenterVector(segment.LeftPoint, this->Center);
+    Vector2D segmentVector(segment.LeftPoint, segment.RightPoint);
+    double projectionLength = leftCenterVector.DotProduct(segmentVector) / segmentVector.Length();
 
-    double dr = translatedSegment.LeftPoint.Distance(translatedSegment.RightPoint);
-    double D = translatedSegment.LeftPoint.X * translatedSegment.RightPoint.Y - translatedSegment.LeftPoint.Y * translatedSegment.RightPoint.X;
-    double delta = this->Radius * this->Radius * dr * dr - D * D;
+    Point2D closestPoint;
 
-    if (-1 * Constants::CollisionTheta <= delta && delta <= Constants::CollisionTheta) {
-        return Tangent;
+    if (projectionLength < 0) {
+        closestPoint = segment.LeftPoint;
+    } else if (projectionLength > segmentVector.Length()) {
+        closestPoint = segment.RightPoint;
+    } else {
+
+        Vector2D projectionVector = segmentVector * projectionLength / segmentVector.Length();
+        closestPoint.X = segment.LeftPoint.X + projectionVector.X;
+        closestPoint.Y = segment.LeftPoint.Y + projectionVector.Y;
     }
-    else if (delta > Constants::CollisionTheta) {
+
+    double circleClosestDistance = closestPoint.Distance(this->Center);
+
+    if (circleClosestDistance - this->Radius > -Constants::CollisionTheta && circleClosestDistance - this->Radius < Constants::CollisionTheta) {
+        return Tangent;
+    } else if (circleClosestDistance < this->Radius) {
         return Overlapping;
     }
     return NoCollision;
+
 }
 
 void Ball::Collide(Ball & ball) {
