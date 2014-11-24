@@ -70,6 +70,14 @@ void Ball::Collide(const Segment & line) {
 
     Vector2D lineNormal = line.GetLeftNormal();
 
+    Point2D normalPoint;
+    normalPoint.X = this->Center.X + lineNormal.X;
+    normalPoint.Y = this->Center.Y + lineNormal.Y;
+
+    if (!(line.PointOnSegment(normalPoint) * line.PointOnSegment(this->Center) > 0)) {
+        lineNormal = line.GetRightNormal();
+    }
+
     this->Center.X += this->Direction.X;
     this->Center.Y += this->Direction.Y;
 
@@ -78,7 +86,8 @@ void Ball::Collide(const Segment & line) {
     this->Center.X -= this->Direction.X;
     this->Center.Y -= this->Direction.Y;
 
-    this->Direction = this->Direction + 2 * lineNormal.Normalize() * d1;
+    this->Direction = this->Direction + 2 * lineNormal.Normalize() * fabs(d1);
+
 }
 
 double Ball::PredictCollisionTime(const Segment & segment) const {
@@ -96,6 +105,13 @@ double Ball::PredictCollisionTime(const Segment & segment) const {
     }
 
     Vector2D segmentNormal = segment.GetLeftNormal();
+    Point2D normalPoint;
+    normalPoint.X = ball1.Center.X + segmentNormal.X;
+    normalPoint.Y = ball1.Center.Y + segmentNormal.Y;
+
+    if (!(segment.PointOnSegment(normalPoint) > 0 && segment.PointOnSegment(ball1.Center) > 0)) {
+        segmentNormal = segment.GetRightNormal();
+    }
 
     double d1 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball1.Center)) / segmentNormal.Length();
     double d2 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball2.Center)) / segmentNormal.Length();

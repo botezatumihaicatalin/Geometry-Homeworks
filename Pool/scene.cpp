@@ -57,7 +57,7 @@ vector<Circle> Scene::tablePockets = {
 };
 
 vector<Ball> Scene::balls = {
-    Ball(Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,Constants::FirstBallY),Constants::BallRadius),
+    Ball(Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,70),Constants::BallRadius),
 
 	Ball(Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX,Constants::FirstBallY),Constants::BallRadius),
 
