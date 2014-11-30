@@ -100,17 +100,6 @@ void drawBall(double x , double y , double radius) {
 		glVertex2f(x + cos(degInRad)*radius,y + sin(degInRad)*radius);
 	}
 	glEnd();
-	glPolygonMode(GL_FRONT,GL_POINT);
-	glLineWidth(3.0);
-	glBegin(GL_POLYGON);
-
-    for (double i = 0; i < 360; i+= 1)
-    {
-        float degInRad = i*DEG2RAD;
-        glVertex2f(x + cos(degInRad)*radius,y + sin(degInRad)*radius);
-    }
-    glEnd();
-
 }
 
 void drawCircle(double x , double y , double radius) {
@@ -136,34 +125,77 @@ void Scene::Movement(void) {
     double frameRatio = (LastFrameDuration / 1000);
 
     for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+        Ball * const ball1 = &balls[ballIndex1];
+
+        ball1->Center.X += ball1->Direction.X * frameRatio;
+        ball1->Center.Y += ball1->Direction.Y * frameRatio;
+        ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
+        if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
+            ball1->Direction.X = 0.0;
+        }
+        if (ball1->Direction.Y < Constants::MovementTheta && ball1->Direction.Y > -Constants::MovementTheta) {
+            ball1->Direction.Y = 0.0;
+        }
+    }
+
+    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+
+            Ball * const ball1 = &balls[ballIndex1];
+            Vector2D currentBallVelocity = ball1->Direction;
+            ball1->Direction *= frameRatio;
+
+            double minCollisionTime = numeric_limits<double>::max();
+
+            for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+                double collisionTime = ball1->PredictCollisionTime(tableMargins[tableMarginIndex]);
+                if (collisionTime >= 0 && collisionTime < 1 && collisionTime < minCollisionTime) {
+                    minCollisionTime = collisionTime;
+                }
+            }
+
+            for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
+                double collisionTime = ball1->PredictCollisionTime(balls[ballIndex2]);
+                if (collisionTime >= 0 && collisionTime < 1 && collisionTime < minCollisionTime) {
+                    minCollisionTime = collisionTime;
+                }
+            }
+
+            ball1->Direction = currentBallVelocity;
+            if (minCollisionTime != numeric_limits<double>::max()) {
+                ball1->Center.X += ball1->Direction.X * frameRatio * minCollisionTime;
+                ball1->Center.Y += ball1->Direction.Y * frameRatio * minCollisionTime;
+            }
+
+    }
+
+    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
 
         Ball * const ball1 = &balls[ballIndex1];
 
         for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
             Segment * const segment = &tableMargins[tableMarginIndex];
-            double collisionTime = ball1->PredictCollisionTime(*segment);
-            if (collisionTime >= 0 && collisionTime < frameRatio) {
-                ball1->Collide(*segment);
-            }else if (ball1->Collides(*segment) != NoCollision) {
-                ball1->Collides(*segment);
+            CollisionState collisionState = ball1->Collides(*segment);
+            switch (collisionState) {
+
+                case Overlapping : {
+                    ball1->Collide(*segment);
+                    break;
+                }
+
+                case Tangent : {
+                    ball1->Collide(*segment);
+                    break;
+                }
+
+                case NoCollision : {
+                    break;
+                }
             }
         }
 
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
             Ball * const ball2 = &balls[ballIndex2];
-
-            ball1->Center.X += ball1->Direction.X * frameRatio;
-            ball1->Center.Y += ball1->Direction.Y * frameRatio;
-            ball2->Center.X += ball2->Direction.X * frameRatio;
-            ball2->Center.Y += ball2->Direction.Y * frameRatio;
-
             CollisionState collisionState = ball1->Collides(*ball2);
-
-            ball1->Center.X -= ball1->Direction.X * frameRatio;
-            ball1->Center.Y -= ball1->Direction.Y * frameRatio;
-            ball2->Center.X -= ball2->Direction.X * frameRatio;
-            ball2->Center.Y -= ball2->Direction.Y * frameRatio;
-
             switch (collisionState) {
 
                 case Overlapping : {
@@ -182,15 +214,7 @@ void Scene::Movement(void) {
             }
         }
 
-        ball1->Center.X += ball1->Direction.X * frameRatio;
-        ball1->Center.Y += ball1->Direction.Y * frameRatio;
-        ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
-        if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
-            ball1->Direction.X = 0.0;
-        }
-        if (ball1->Direction.Y < Constants::MovementTheta && ball1->Direction.Y > -Constants::MovementTheta) {
-            ball1->Direction.Y = 0.0;
-        }
+
     }
 
     ballsMoving = false;
