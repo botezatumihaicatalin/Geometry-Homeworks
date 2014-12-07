@@ -163,48 +163,29 @@ void drawCircle(double x , double y , double radius) {
 
 void Scene::Movement(void) {
 
-    double frameRatio = (LastFrameDuration / 1000);
-
-    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
-        Ball * const ball1 = &balls[ballIndex1];
-
-        ball1->Center.X += ball1->Direction.X * frameRatio;
-        ball1->Center.Y += ball1->Direction.Y * frameRatio;
-        ball1->Direction -= ball1->Direction * 0.81 * frameRatio;
-        if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
-            ball1->Direction.X = 0.0;
-        }
-        if (ball1->Direction.Y < Constants::MovementTheta && ball1->Direction.Y > -Constants::MovementTheta) {
-            ball1->Direction.Y = 0.0;
-        }
-    }
-
     for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
 
         Ball * const ball1 = &balls[ballIndex1];
-        Vector2D currentBallVelocity = ball1->Direction;
-        ball1->Direction *= frameRatio;
 
         double minCollisionTime = numeric_limits<double>::max();
 
         for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
             double collisionTime = ball1->PredictCollisionTime(tableMargins[tableMarginIndex]);
-            if (collisionTime >= 0 && collisionTime < 1 && collisionTime < minCollisionTime) {
+            if (collisionTime >= 0 && collisionTime < LastFrameDuration * 2.0 && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
         }
 
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
             double collisionTime = ball1->PredictCollisionTime(balls[ballIndex2]);
-            if (collisionTime >= 0 && collisionTime < 1 && collisionTime < minCollisionTime) {
+            if (collisionTime >= 0 && collisionTime < LastFrameDuration * 2.0 && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
         }
 
-        ball1->Direction = currentBallVelocity;
         if (minCollisionTime != numeric_limits<double>::max()) {
-            ball1->Center.X += ball1->Direction.X * frameRatio * minCollisionTime;
-            ball1->Center.Y += ball1->Direction.Y * frameRatio * minCollisionTime;
+            ball1->Center.X += ball1->Direction.X * minCollisionTime;
+            ball1->Center.Y += ball1->Direction.Y * minCollisionTime;
         }
     }
 
@@ -253,16 +234,57 @@ void Scene::Movement(void) {
                 }
             }
         }
+    }
 
+    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+        Ball * const ball1 = &balls[ballIndex1];
 
+        ball1->Center.X += ball1->Direction.X * LastFrameDuration;
+        ball1->Center.Y += ball1->Direction.Y * LastFrameDuration;
+        ball1->Direction -= ball1->Direction * 0.81 * LastFrameDuration;
+        if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
+            ball1->Direction.X = 0.0;
+        }
+        if (ball1->Direction.Y < Constants::MovementTheta && ball1->Direction.Y > -Constants::MovementTheta) {
+            ball1->Direction.Y = 0.0;
+        }
+    }
+
+    for (unsigned int tablePocketIndex = 0; tablePocketIndex < tablePockets.size(); tablePocketIndex++) {
+        for (unsigned int ballIndex = 0; ballIndex < balls.size(); ballIndex++) {
+
+            double centerDistances = balls[ballIndex].Center.Distance(tablePockets[tablePocketIndex].Center);
+            if (centerDistances <= tablePockets[tablePocketIndex].Radius) {
+                swap(balls[ballIndex], balls.back());
+                balls.pop_back();
+            }
+        }
     }
 
     ballsMoving = false;
     for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
 
         Ball * const ball1 = &balls[ballIndex1];
+
         if (ball1->Direction.X != 0.0 || ball1->Direction.Y != 0.0) {
             ballsMoving = true;
+        }
+    }
+
+    if (!ballsMoving)
+    {
+        bool whiteBallOnTable = false;
+        bool blackBallOnTable = false;
+
+        for (unsigned int ballIndex = 0; ballIndex < balls.size(); ballIndex++) {
+            whiteBallOnTable |= (balls[ballIndex].Color == White);
+            blackBallOnTable |= (balls[ballIndex].Color == Black);
+        }
+
+        if (!whiteBallOnTable)
+        {
+            balls.push_back(Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius));
+            swap(balls[0],balls.back());
         }
     }
 

@@ -38,7 +38,7 @@ CollisionState Ball::Collides(const Segment & segment) const {
 
     double circleClosestDistance = closestPoint.Distance(this->Center);
 
-    if (circleClosestDistance - this->Radius > -Constants::CollisionTheta && circleClosestDistance - this->Radius < Constants::CollisionTheta) {
+    if (circleClosestDistance - this->Radius > -1 * Constants::CollisionTheta && circleClosestDistance - this->Radius < Constants::CollisionTheta) {
         return Tangent;
     } else if (circleClosestDistance < this->Radius) {
         return Overlapping;
@@ -87,13 +87,14 @@ void Ball::Collide(const Segment & line) {
     this->Center.Y -= this->Direction.Y;
 
     this->Direction = this->Direction + 2 * lineNormal.Normalize() * fabs(d1);
+    this->Direction *= Constants::WallResistanceTheta;
 
 }
 
 double Ball::PredictCollisionTime(const Segment & segment) const {
 
     Ball ball1(*this);
-    Ball ball2(ball1.Direction , ball1.Center.X + ball1.Direction.X , ball1.Center.Y+ ball1.Direction.Y , ball1.Radius);
+    Ball ball2(ball1.Color, ball1.Type, ball1.Direction , ball1.Center.X + ball1.Direction.X , ball1.Center.Y+ ball1.Direction.Y , ball1.Radius);
     Vector2D bigTrajectory = ball1.Direction.Normalize() * 3000;
 
     if (this->Direction.X == 0.0 && this->Direction.Y == 0.0) {

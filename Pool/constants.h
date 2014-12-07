@@ -17,6 +17,7 @@ public :
     const static double FirstBallY;
     const static double CollisionTheta;
     const static double MovementTheta;
+    const static double WallResistanceTheta;
     const static double MantaThickness;
 };
 

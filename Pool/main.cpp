@@ -19,7 +19,7 @@ void DisplayFunc() {
 	Scene::Movement();
 	Scene::Render();
 	clock_t endClocks = clock();
-	Scene::LastFrameDuration = double(endClocks - startClocks) / CLOCKS_PER_SEC * 1000;
+	Scene::LastFrameDuration = double(endClocks - startClocks) / CLOCKS_PER_SEC;
 }
 
 void MouseMotionFunc(int x , int y) {
