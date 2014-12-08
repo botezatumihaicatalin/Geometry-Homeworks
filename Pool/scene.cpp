@@ -5,6 +5,7 @@
 #include <math.h>
 #include <cstdio>
 #include <bitset>
+#include <string.h>
 
 #include "point2D.h"
 #include "vector2D.h"
@@ -13,7 +14,7 @@
 
 using namespace std;
 
-vector<Segment> Scene::tableMargins = {
+vector<Segment> Scene::TableMargins = {
 	Segment(Point2D(Constants::HoleDiameter,Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 , Constants::HoleDiameter / 2)),
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,Constants::HoleDiameter / 2) , Point2D(1200 - Constants::HoleDiameter, Constants::HoleDiameter / 2)),
 	Segment(Point2D(Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 , 700 - Constants::HoleDiameter / 2)),
@@ -21,33 +22,33 @@ vector<Segment> Scene::tableMargins = {
 	Segment(Point2D(Constants::HoleDiameter / 2, Constants::HoleDiameter) , Point2D(Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
 	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
 
-	Segment(Point2D(Constants::HoleDiameter,Constants::HoleDiameter / 2), Point2D(Constants::HoleDiameter + Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter,Constants::HoleDiameter / 2), Point2D(Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 , Constants::HoleDiameter / 2), Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
-	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation, Constants::HoleDiameter / 2 + Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
 
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,Constants::HoleDiameter / 2 + Constants::MantaThickness)),
-	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, Constants::HoleDiameter / 2)),
-	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness , Constants::HoleDiameter / 2 + Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation , Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, Constants::HoleDiameter / 2)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,Constants::HoleDiameter / 2 + Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation, Constants::HoleDiameter / 2 + Constants::MantaThickness)),
 
-	Segment(Point2D(Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D(Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D(Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness) , Point2D((1200 - Constants::HoleDiameter) / 2 , 700 - Constants::HoleDiameter / 2)),
-	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness),Point2D((1200 - Constants::HoleDiameter) / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
 
 	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter,700 - Constants::HoleDiameter / 2) , Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
-	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, 700 - Constants::HoleDiameter / 2)),
-	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness), Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter, 700 - Constants::HoleDiameter / 2)),
+	Segment(Point2D((1200 - Constants::HoleDiameter) / 2 + Constants::HoleDiameter + Constants::MantaThickness,700 - Constants::HoleDiameter / 2 - Constants::MantaThickness), Point2D(1200 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation, 700 - Constants::HoleDiameter / 2 - Constants::MantaThickness)),
 
-	Segment(Point2D(Constants::HoleDiameter / 2, Constants::HoleDiameter) , Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
-	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness) , Point2D(Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
-	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness), Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness)),
+	Segment(Point2D(Constants::HoleDiameter / 2, Constants::HoleDiameter) , Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation)),
+	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation) , Point2D(Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
+	Segment(Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation), Point2D(Constants::HoleDiameter / 2 + Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation)),
 
-	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
-	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
-	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness), Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness)),
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 , Constants::HoleDiameter) , Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation)),
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation) , Point2D(1200 - Constants::HoleDiameter / 2, 700 - Constants::HoleDiameter)),
+	Segment(Point2D(1200 - Constants::HoleDiameter / 2 - Constants::MantaThickness, 700 - Constants::HoleDiameter - Constants::MantaThickness - Constants::CornersDeviation), Point2D(1200 - Constants::HoleDiameter / 2  - Constants::MantaThickness, Constants::HoleDiameter + Constants::MantaThickness + Constants::CornersDeviation)),
 
 };
 
-vector<Circle> Scene::tablePockets = {
+vector<Circle> Scene::TablePockets = {
 	Circle(Constants::HoleDiameter / 2, Constants::HoleDiameter / 2, Constants::HoleDiameter / 2),
 	Circle(1200 / 2, Constants::HoleDiameter / 2, Constants::HoleDiameter / 2),
 	Circle(1200 - Constants::HoleDiameter / 2, Constants::HoleDiameter / 2, Constants::HoleDiameter / 2),
@@ -57,7 +58,7 @@ vector<Circle> Scene::tablePockets = {
 
 };
 
-vector<Ball> Scene::balls = {
+vector<Ball> Scene::Balls = {
     Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius),
 
 	Ball(Yellow,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX,Constants::FirstBallY),Constants::BallRadius),
@@ -81,11 +82,13 @@ vector<Ball> Scene::balls = {
     Ball(Brown,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY + 4 * Constants::BallRadius),Constants::BallRadius),
 };
 
-Cue Scene::cue = Cue(Point2D(300 - Constants::BallRadius,Constants::FirstBallY), Vector2D(-1.0,0.0), 250);
+Cue Scene::TableCue = Cue(Point2D(300 - Constants::BallRadius,Constants::FirstBallY), Vector2D(-1.0,0.0), 250);
 
-bool Scene::ballsMoving = false;
+bool Scene::BallsMoving = false;
 
 double Scene::LastFrameDuration = 0;
+
+double Scene::TableFriction = 0.81;
 
 void drawBall(BallColor color , BallType type, double x , double y , double radius) {
 
@@ -161,19 +164,34 @@ void drawCircle(double x , double y , double radius) {
 
 }
 
+void drawText(char * text , double x , double y, int fontSize) {
+    int textLength = strlen(text);
+    glColor3d(0.0,0.0,0.0);
+    glLineWidth(4.0);
+
+
+    for (int pos = 0; pos < textLength; pos++) {
+        glPushMatrix();
+        glScaled(fontSize / 80.0, fontSize / 80.0 , 0.0);
+        glTranslated(x + fontSize * (pos - textLength / 2), y , 0.0);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, text[pos]);
+        glPopMatrix();
+    }
+}
+
 void Scene::Movement(void) {
 
-    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
 
-        Ball * const ball1 = &balls[ballIndex1];
+        Ball * const ball1 = &Balls[ballIndex1];
 
         double minCollisionTime = numeric_limits<double>::max();
         double minBallCollisionTime = numeric_limits<double>::max();
         unsigned int collidedBallIndex = -1;
 
-        for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+        for (unsigned int tableMarginIndex = 0; tableMarginIndex < TableMargins.size(); tableMarginIndex ++) {
 
-            double collisionTime = ball1->PredictCollisionTime(tableMargins[tableMarginIndex]);
+            double collisionTime = ball1->PredictCollisionTime(TableMargins[tableMarginIndex]);
             if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
@@ -183,8 +201,8 @@ void Scene::Movement(void) {
             }
         }
 
-        for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
-            double collisionTime = ball1->PredictCollisionTime(balls[ballIndex2]);
+        for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < Balls.size() ; ballIndex2 ++ ) {
+            double collisionTime = ball1->PredictCollisionTime(Balls[ballIndex2]);
             if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
@@ -196,18 +214,18 @@ void Scene::Movement(void) {
             ball1->Center.Y += ball1->Direction.Y * minCollisionTime;
 
             if (minCollisionTime == minBallCollisionTime) {
-                balls[collidedBallIndex].Center.X +=  balls[collidedBallIndex].Direction.X * minBallCollisionTime;
-                balls[collidedBallIndex].Center.Y +=  balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
+                Balls[collidedBallIndex].Center.X +=  Balls[collidedBallIndex].Direction.X * minBallCollisionTime;
+                Balls[collidedBallIndex].Center.Y +=  Balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
             }
         }
     }
 
-    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
 
-        Ball * const ball1 = &balls[ballIndex1];
+        Ball * const ball1 = &Balls[ballIndex1];
 
-        for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
-            Segment * const segment = &tableMargins[tableMarginIndex];
+        for (unsigned int tableMarginIndex = 0; tableMarginIndex < TableMargins.size(); tableMarginIndex ++) {
+            Segment * const segment = &TableMargins[tableMarginIndex];
             CollisionState collisionState = ball1->Collides(*segment);
             switch (collisionState) {
 
@@ -227,8 +245,8 @@ void Scene::Movement(void) {
             }
         }
 
-        for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
-            Ball * const ball2 = &balls[ballIndex2];
+        for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < Balls.size() ; ballIndex2 ++ ) {
+            Ball * const ball2 = &Balls[ballIndex2];
             CollisionState collisionState = ball1->Collides(*ball2);
             switch (collisionState) {
 
@@ -249,12 +267,12 @@ void Scene::Movement(void) {
         }
     }
 
-    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
-        Ball * const ball1 = &balls[ballIndex1];
+    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
+        Ball * const ball1 = &Balls[ballIndex1];
 
         ball1->Center.X += ball1->Direction.X * LastFrameDuration;
         ball1->Center.Y += ball1->Direction.Y * LastFrameDuration;
-        ball1->Direction -= ball1->Direction * 0.81 * LastFrameDuration;
+        ball1->Direction -= ball1->Direction * TableFriction * LastFrameDuration;
         if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
             ball1->Direction.X = 0.0;
         }
@@ -263,41 +281,41 @@ void Scene::Movement(void) {
         }
     }
 
-    for (unsigned int tablePocketIndex = 0; tablePocketIndex < tablePockets.size(); tablePocketIndex++) {
-        for (unsigned int ballIndex = 0; ballIndex < balls.size(); ballIndex++) {
+    for (unsigned int tablePocketIndex = 0; tablePocketIndex < TablePockets.size(); tablePocketIndex++) {
+        for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex++) {
 
-            double centerDistances = balls[ballIndex].Center.Distance(tablePockets[tablePocketIndex].Center);
-            if (centerDistances <= tablePockets[tablePocketIndex].Radius) {
-                swap(balls[ballIndex], balls.back());
-                balls.pop_back();
+            double centerDistances = Balls[ballIndex].Center.Distance(TablePockets[tablePocketIndex].Center);
+            if (centerDistances <= TablePockets[tablePocketIndex].Radius) {
+                swap(Balls[ballIndex], Balls.back());
+                Balls.pop_back();
             }
         }
     }
 
-    ballsMoving = false;
-    for (unsigned int ballIndex1 = 0; ballIndex1 < balls.size(); ballIndex1 ++ ) {
+    BallsMoving = false;
+    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
 
-        Ball * const ball1 = &balls[ballIndex1];
+        Ball * const ball1 = &Balls[ballIndex1];
 
         if (ball1->Direction.X != 0.0 || ball1->Direction.Y != 0.0) {
-            ballsMoving = true;
+            BallsMoving = true;
         }
     }
 
-    if (!ballsMoving)
+    if (!BallsMoving)
     {
         bool whiteBallOnTable = false;
         bool blackBallOnTable = false;
 
-        for (unsigned int ballIndex = 0; ballIndex < balls.size(); ballIndex++) {
-            whiteBallOnTable |= (balls[ballIndex].Color == White);
-            blackBallOnTable |= (balls[ballIndex].Color == Black);
+        for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex++) {
+            whiteBallOnTable |= (Balls[ballIndex].Color == White);
+            blackBallOnTable |= (Balls[ballIndex].Color == Black);
         }
 
         if (!whiteBallOnTable)
         {
-            balls.push_back(Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius));
-            swap(balls[0],balls.back());
+            Balls.push_back(Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius));
+            swap(Balls[0],Balls.back());
         }
     }
 
@@ -311,13 +329,13 @@ void Scene::Render(void) {
     glPolygonMode(GL_FRONT,GL_FILL);
     glColor3d(0,1,0);
     glBegin(GL_POLYGON);
-    for (unsigned int circleIndex = 0; circleIndex < tablePockets.size(); circleIndex++) {
-        glVertex2d(tablePockets[circleIndex].Center.X, tablePockets[circleIndex].Center.Y);
+    for (unsigned int circleIndex = 0; circleIndex < TablePockets.size(); circleIndex++) {
+        glVertex2d(TablePockets[circleIndex].Center.X, TablePockets[circleIndex].Center.Y);
     }
     glEnd();
 
 
-    for (const Segment & margin : tableMargins) {
+    for (const Segment & margin : TableMargins) {
         glColor3d(0.0, 0.0, 0.0);
         glLineWidth(3.0);
         glBegin(GL_LINES);
@@ -326,35 +344,35 @@ void Scene::Render(void) {
         glEnd();
     }
 
-    for (const Circle & circle : tablePockets) {
+    for (const Circle & circle : TablePockets) {
         drawBall(Black,Filled,circle.Center.X, circle.Center.Y, circle.Radius);
     }
 
-    for (const Ball & ball : balls) {
+    for (const Ball & ball : Balls) {
         drawBall(ball.Color,ball.Type,ball.Center.X, ball.Center.Y, ball.Radius);
     }
 
-    if (!ballsMoving) {
+    if (!BallsMoving) {
 
         glColor3d(0.0, 0.0, 1.0);
         glLineWidth(6.0);
         glBegin(GL_LINES);
-        glVertex2d(cue.Head.X, cue.Head.Y);
-        glVertex2d(cue.Head.X + cue.Direction.X * cue.Length, cue.Head.Y + cue.Direction.Y * cue.Length);
+        glVertex2d(TableCue.Head.X, TableCue.Head.Y);
+        glVertex2d(TableCue.Head.X + TableCue.Direction.X * TableCue.Length, TableCue.Head.Y + TableCue.Direction.Y * TableCue.Length);
         glEnd();
 
-        Ball cueBallCopy(balls[0]);
-        cueBallCopy.Direction = Vector2D(-1 * cue.Direction.X * 1200, -1 * cue.Direction.Y * 1200);
+        Ball cueBallCopy(Balls[0]);
+        cueBallCopy.Direction = Vector2D(-1 * TableCue.Direction.X * 1200, -1 * TableCue.Direction.Y * 1200);
 
         double minimumCollisionTime = numeric_limits<double>::max();
-        Ball colidedBall(balls[0]);
+        Ball colidedBall(Balls[0]);
 
-        for (unsigned int ballIndex1 = 1; ballIndex1 < balls.size(); ballIndex1++) {
+        for (unsigned int ballIndex1 = 1; ballIndex1 < Balls.size(); ballIndex1++) {
 
-            double collisionTime = cueBallCopy.PredictCollisionTime(balls[ballIndex1]);
+            double collisionTime = cueBallCopy.PredictCollisionTime(Balls[ballIndex1]);
             if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
                 minimumCollisionTime = collisionTime;
-                colidedBall = balls[ballIndex1];
+                colidedBall = Balls[ballIndex1];
             }
         }
 
@@ -405,8 +423,8 @@ void Scene::Render(void) {
             minimumCollisionTime = numeric_limits<double>::max();
             unsigned int collidedSegmentIndex = -1;
 
-            for (unsigned int tableMarginIndex = 6; tableMarginIndex < tableMargins.size(); tableMarginIndex++) {
-                double collisionTime = cueBallCopy.PredictCollisionTime(tableMargins[tableMarginIndex]);
+            for (unsigned int tableMarginIndex = 6; tableMarginIndex < TableMargins.size(); tableMarginIndex++) {
+                double collisionTime = cueBallCopy.PredictCollisionTime(TableMargins[tableMarginIndex]);
 
                 if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
                     minimumCollisionTime = collisionTime;
@@ -435,7 +453,7 @@ void Scene::Render(void) {
                     remaining = 50;
                 }
 
-                anotherCopy.Collide(tableMargins[collidedSegmentIndex]);
+                anotherCopy.Collide(TableMargins[collidedSegmentIndex]);
 
                 glEnable(GL_LINE_STIPPLE);
                 glLineStipple(3, 0x9999);
@@ -455,7 +473,7 @@ void Scene::Render(void) {
         glLineWidth(1.0);
 
         glBegin(GL_LINES);
-        glVertex2d(balls[0].Center.X - cue.Direction.X * balls[0].Radius, balls[0].Center.Y - cue.Direction.Y * balls[0].Radius);
+        glVertex2d(Balls[0].Center.X - TableCue.Direction.X * Balls[0].Radius, Balls[0].Center.Y - TableCue.Direction.Y * Balls[0].Radius);
         glVertex2d(cueBallCopy.Center.X + cueBallCopy.Direction.X, cueBallCopy.Center.Y + cueBallCopy.Direction.Y);
         glEnd();
 
@@ -463,5 +481,6 @@ void Scene::Render(void) {
 
     }
 
+    //drawText("SALUT",100,100,70);
     glutSwapBuffers();
 }

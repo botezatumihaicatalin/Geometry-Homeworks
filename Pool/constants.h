@@ -19,6 +19,7 @@ public :
     const static double MovementTheta;
     const static double WallResistanceTheta;
     const static double MantaThickness;
+    const static double CornersDeviation;
 };
 
 #endif /* CONSTANTS_H_ */
