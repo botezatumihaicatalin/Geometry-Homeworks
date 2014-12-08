@@ -181,9 +181,14 @@ void drawText(char * text , double x , double y, int fontSize) {
 
 void Scene::Movement(void) {
 
-    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
+    vector<double> remainingBallTime;
+    remainingBallTime.reserve(Balls.size());
 
-        Ball * const ball1 = &Balls[ballIndex1];
+    for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
+        remainingBallTime[ballIndex] = LastFrameDuration;
+    }
+
+    for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
 
         double minCollisionTime = numeric_limits<double>::max();
         double minBallCollisionTime = numeric_limits<double>::max();
@@ -191,31 +196,35 @@ void Scene::Movement(void) {
 
         for (unsigned int tableMarginIndex = 0; tableMarginIndex < TableMargins.size(); tableMarginIndex ++) {
 
-            double collisionTime = ball1->PredictCollisionTime(TableMargins[tableMarginIndex]);
-            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
+            double collisionTime = Balls[ballIndex].PredictCollisionTime(TableMargins[tableMarginIndex]);
+            if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
-            }
-            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minBallCollisionTime) {
-                minBallCollisionTime = collisionTime;
-                collidedBallIndex = ballIndex1;
             }
         }
 
-        for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < Balls.size() ; ballIndex2 ++ ) {
-            double collisionTime = ball1->PredictCollisionTime(Balls[ballIndex2]);
-            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
+        for (unsigned int otherBallIndex = ballIndex + 1 ; otherBallIndex < Balls.size() ; otherBallIndex ++ ) {
+            double collisionTime = Balls[ballIndex].PredictCollisionTime(Balls[otherBallIndex]);
+            if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
+
+            if (collisionTime > 0 && collisionTime < remainingBallTime[otherBallIndex] && collisionTime < minBallCollisionTime) {
+                minBallCollisionTime = collisionTime;
+                collidedBallIndex = otherBallIndex;
+            }
+
         }
 
         if (minCollisionTime != numeric_limits<double>::max()) {
 
-            ball1->Center.X += ball1->Direction.X * minCollisionTime;
-            ball1->Center.Y += ball1->Direction.Y * minCollisionTime;
+            Balls[ballIndex].Center.X += Balls[ballIndex].Direction.X * minCollisionTime;
+            Balls[ballIndex].Center.Y += Balls[ballIndex].Direction.Y * minCollisionTime;
+            remainingBallTime[ballIndex] -= minCollisionTime;
 
             if (minCollisionTime == minBallCollisionTime) {
                 Balls[collidedBallIndex].Center.X +=  Balls[collidedBallIndex].Direction.X * minBallCollisionTime;
                 Balls[collidedBallIndex].Center.Y +=  Balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
+                remainingBallTime[collidedBallIndex] -= minBallCollisionTime;
             }
         }
     }
@@ -267,11 +276,11 @@ void Scene::Movement(void) {
         }
     }
 
-    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
-        Ball * const ball1 = &Balls[ballIndex1];
+    for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
+        Ball * const ball1 = &Balls[ballIndex];
 
-        ball1->Center.X += ball1->Direction.X * LastFrameDuration;
-        ball1->Center.Y += ball1->Direction.Y * LastFrameDuration;
+        ball1->Center.X += ball1->Direction.X * remainingBallTime[ballIndex];
+        ball1->Center.Y += ball1->Direction.Y * remainingBallTime[ballIndex];
         ball1->Direction -= ball1->Direction * TableFriction * LastFrameDuration;
         if (ball1->Direction.X < Constants::MovementTheta && ball1->Direction.X > -Constants::MovementTheta) {
             ball1->Direction.X = 0.0;
@@ -293,9 +302,9 @@ void Scene::Movement(void) {
     }
 
     BallsMoving = false;
-    for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
+    for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
 
-        Ball * const ball1 = &Balls[ballIndex1];
+        Ball * const ball1 = &Balls[ballIndex];
 
         if (ball1->Direction.X != 0.0 || ball1->Direction.Y != 0.0) {
             BallsMoving = true;
@@ -367,12 +376,12 @@ void Scene::Render(void) {
         double minimumCollisionTime = numeric_limits<double>::max();
         Ball colidedBall(Balls[0]);
 
-        for (unsigned int ballIndex1 = 1; ballIndex1 < Balls.size(); ballIndex1++) {
+        for (unsigned int ballIndex = 1; ballIndex < Balls.size(); ballIndex++) {
 
-            double collisionTime = cueBallCopy.PredictCollisionTime(Balls[ballIndex1]);
+            double collisionTime = cueBallCopy.PredictCollisionTime(Balls[ballIndex]);
             if (collisionTime >= 0 && minimumCollisionTime > collisionTime) {
                 minimumCollisionTime = collisionTime;
-                colidedBall = Balls[ballIndex1];
+                colidedBall = Balls[ballIndex];
             }
         }
 
