@@ -168,24 +168,37 @@ void Scene::Movement(void) {
         Ball * const ball1 = &balls[ballIndex1];
 
         double minCollisionTime = numeric_limits<double>::max();
+        double minBallCollisionTime = numeric_limits<double>::max();
+        unsigned int collidedBallIndex = -1;
 
         for (unsigned int tableMarginIndex = 0; tableMarginIndex < tableMargins.size(); tableMarginIndex ++) {
+
             double collisionTime = ball1->PredictCollisionTime(tableMargins[tableMarginIndex]);
-            if (collisionTime >= 0 && collisionTime < LastFrameDuration * 2.0 && collisionTime < minCollisionTime) {
+            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
+            }
+            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minBallCollisionTime) {
+                minBallCollisionTime = collisionTime;
+                collidedBallIndex = ballIndex1;
             }
         }
 
         for (unsigned int ballIndex2 = ballIndex1 + 1 ; ballIndex2 < balls.size() ; ballIndex2 ++ ) {
             double collisionTime = ball1->PredictCollisionTime(balls[ballIndex2]);
-            if (collisionTime >= 0 && collisionTime < LastFrameDuration * 2.0 && collisionTime < minCollisionTime) {
+            if (collisionTime >= 0 && collisionTime < LastFrameDuration && collisionTime < minCollisionTime) {
                 minCollisionTime = collisionTime;
             }
         }
 
         if (minCollisionTime != numeric_limits<double>::max()) {
+
             ball1->Center.X += ball1->Direction.X * minCollisionTime;
             ball1->Center.Y += ball1->Direction.Y * minCollisionTime;
+
+            if (minCollisionTime == minBallCollisionTime) {
+                balls[collidedBallIndex].Center.X +=  balls[collidedBallIndex].Direction.X * minBallCollisionTime;
+                balls[collidedBallIndex].Center.Y +=  balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
+            }
         }
     }
 
