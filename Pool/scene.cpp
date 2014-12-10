@@ -172,8 +172,8 @@ void drawText(char * text , double x , double y, int fontSize) {
 
     for (int pos = 0; pos < textLength; pos++) {
         glPushMatrix();
+        glTranslated(x + fontSize * (pos - textLength / 2.0), y , 0.0);
         glScaled(fontSize / 80.0, fontSize / 80.0 , 0.0);
-        glTranslated(x + fontSize * (pos - textLength / 2), y , 0.0);
         glutStrokeCharacter(GLUT_STROKE_ROMAN, text[pos]);
         glPopMatrix();
     }
@@ -188,46 +188,57 @@ void Scene::Movement(void) {
         remainingBallTime[ballIndex] = LastFrameDuration;
     }
 
-    for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
+    double minCollisionTime = numeric_limits<double>::max();
+    double minBallCollisionTime = numeric_limits<double>::max();
+    unsigned int collidedBallIndex = -1;
 
-        double minCollisionTime = numeric_limits<double>::max();
-        double minBallCollisionTime = numeric_limits<double>::max();
-        unsigned int collidedBallIndex = -1;
+    do {
 
-        for (unsigned int tableMarginIndex = 0; tableMarginIndex < TableMargins.size(); tableMarginIndex ++) {
+        minCollisionTime = numeric_limits<double>::max();
+        minBallCollisionTime = numeric_limits<double>::max();
+        collidedBallIndex = -1;
 
-            double collisionTime = Balls[ballIndex].PredictCollisionTime(TableMargins[tableMarginIndex]);
-            if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
-                minCollisionTime = collisionTime;
+        for (unsigned int ballIndex = 0; ballIndex < Balls.size(); ballIndex ++ ) {
+
+            double minCollisionTime = numeric_limits<double>::max();
+            double minBallCollisionTime = numeric_limits<double>::max();
+            unsigned int collidedBallIndex = -1;
+
+            for (unsigned int tableMarginIndex = 0; tableMarginIndex < TableMargins.size(); tableMarginIndex ++) {
+
+                double collisionTime = Balls[ballIndex].PredictCollisionTime(TableMargins[tableMarginIndex]);
+                if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
+                    minCollisionTime = collisionTime;
+                }
+            }
+
+            for (unsigned int otherBallIndex = ballIndex + 1 ; otherBallIndex < Balls.size() ; otherBallIndex ++ ) {
+                double collisionTime = Balls[ballIndex].PredictCollisionTime(Balls[otherBallIndex]);
+                if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
+                    minCollisionTime = collisionTime;
+                }
+
+                if (collisionTime > 0 && collisionTime < remainingBallTime[otherBallIndex] && collisionTime < minBallCollisionTime) {
+                    minBallCollisionTime = collisionTime;
+                    collidedBallIndex = otherBallIndex;
+                }
+
+            }
+
+            if (minCollisionTime != numeric_limits<double>::max()) {
+
+                Balls[ballIndex].Center.X += Balls[ballIndex].Direction.X * minCollisionTime;
+                Balls[ballIndex].Center.Y += Balls[ballIndex].Direction.Y * minCollisionTime;
+                remainingBallTime[ballIndex] -= minCollisionTime;
+
+                if (minCollisionTime == minBallCollisionTime) {
+                    Balls[collidedBallIndex].Center.X +=  Balls[collidedBallIndex].Direction.X * minBallCollisionTime;
+                    Balls[collidedBallIndex].Center.Y +=  Balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
+                    remainingBallTime[collidedBallIndex] -= minBallCollisionTime;
+                }
             }
         }
-
-        for (unsigned int otherBallIndex = ballIndex + 1 ; otherBallIndex < Balls.size() ; otherBallIndex ++ ) {
-            double collisionTime = Balls[ballIndex].PredictCollisionTime(Balls[otherBallIndex]);
-            if (collisionTime > 0 && collisionTime < remainingBallTime[ballIndex] && collisionTime < minCollisionTime) {
-                minCollisionTime = collisionTime;
-            }
-
-            if (collisionTime > 0 && collisionTime < remainingBallTime[otherBallIndex] && collisionTime < minBallCollisionTime) {
-                minBallCollisionTime = collisionTime;
-                collidedBallIndex = otherBallIndex;
-            }
-
-        }
-
-        if (minCollisionTime != numeric_limits<double>::max()) {
-
-            Balls[ballIndex].Center.X += Balls[ballIndex].Direction.X * minCollisionTime;
-            Balls[ballIndex].Center.Y += Balls[ballIndex].Direction.Y * minCollisionTime;
-            remainingBallTime[ballIndex] -= minCollisionTime;
-
-            if (minCollisionTime == minBallCollisionTime) {
-                Balls[collidedBallIndex].Center.X +=  Balls[collidedBallIndex].Direction.X * minBallCollisionTime;
-                Balls[collidedBallIndex].Center.Y +=  Balls[collidedBallIndex].Direction.Y * minBallCollisionTime;
-                remainingBallTime[collidedBallIndex] -= minBallCollisionTime;
-            }
-        }
-    }
+    }while (minCollisionTime != numeric_limits<double>::max());
 
     for (unsigned int ballIndex1 = 0; ballIndex1 < Balls.size(); ballIndex1 ++ ) {
 
@@ -490,6 +501,6 @@ void Scene::Render(void) {
 
     }
 
-    //drawText("SALUT",100,100,70);
+    drawText("SALUT",600,350,30);
     glutSwapBuffers();
 }
