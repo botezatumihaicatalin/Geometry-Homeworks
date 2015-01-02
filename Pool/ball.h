@@ -31,11 +31,11 @@ enum BallType {
 
 class Ball: public Circle {
 public:
-	Vector2D Direction;
+	Vertex2 Direction;
 	BallColor Color;
 	BallType Type;
-	Ball(BallColor color, BallType type, const Vector2D & direction , const double & x = 0.0, const double & y = 0.0, const double & radius = 0.0) : Color(color) , Type(type), Direction(direction) , Circle(x , y , radius) {}
-	Ball(BallColor color, BallType type, const Vector2D & direction , const Point2D & center , const double & radius) : Color(color), Type(type), Direction(direction) , Circle(center , radius) {}
+	Ball(BallColor color, BallType type, const Vertex2 & direction , const double & x = 0.0, const double & y = 0.0, const double & radius = 0.0) : Color(color) , Type(type), Direction(direction) , Circle(x , y , radius) {}
+	Ball(BallColor color, BallType type, const Vertex2 & direction , const Point2D & center , const double & radius) : Color(color), Type(type), Direction(direction) , Circle(center , radius) {}
 	CollisionState Collides(const Ball & ball) const;
 	CollisionState Collides(const Segment & segment) const;
 	void Collide(Ball & ball);

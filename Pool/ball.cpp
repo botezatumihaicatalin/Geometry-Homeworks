@@ -19,8 +19,8 @@ CollisionState Ball::Collides(const Ball & ball) const {
 
 CollisionState Ball::Collides(const Segment & segment) const {
 
-    Vector2D leftCenterVector(segment.LeftPoint, this->Center);
-    Vector2D segmentVector(segment.LeftPoint, segment.RightPoint);
+    Vertex2 leftCenterVector(segment.LeftPoint, this->Center);
+    Vertex2 segmentVector(segment.LeftPoint, segment.RightPoint);
     double projectionLength = leftCenterVector.DotProduct(segmentVector) / segmentVector.Length();
 
     Point2D closestPoint;
@@ -31,7 +31,7 @@ CollisionState Ball::Collides(const Segment & segment) const {
         closestPoint = segment.RightPoint;
     } else {
 
-        Vector2D projectionVector = segmentVector * projectionLength / segmentVector.Length();
+        Vertex2 projectionVector = segmentVector * projectionLength / segmentVector.Length();
         closestPoint.X = segment.LeftPoint.X + projectionVector.X;
         closestPoint.Y = segment.LeftPoint.Y + projectionVector.Y;
     }
@@ -49,18 +49,18 @@ CollisionState Ball::Collides(const Segment & segment) const {
 
 void Ball::Collide(Ball & ball) {
 
-    Vector2D collision = Vector2D(ball.Center, this->Center);
+    Vertex2 collision = Vertex2(ball.Center, this->Center);
     collision = collision.Normalize();
 
     double ball1DotCollision = this->Direction.DotProduct(collision);
-    Vector2D v1x = collision * ball1DotCollision;
-    Vector2D v1y = this->Direction - v1x;
+    Vertex2 v1x = collision * ball1DotCollision;
+    Vertex2 v1y = this->Direction - v1x;
 
     collision *= -1.0;
 
     double ball2DotCollision = ball.Direction.DotProduct(collision);
-    Vector2D v2x = collision * ball2DotCollision;
-    Vector2D v2y = ball.Direction - v2x;
+    Vertex2 v2x = collision * ball2DotCollision;
+    Vertex2 v2y = ball.Direction - v2x;
 
     this->Direction = v2x + v1y;
     ball.Direction = v1x + v2y;
@@ -68,7 +68,7 @@ void Ball::Collide(Ball & ball) {
 
 void Ball::Collide(const Segment & line) {
 
-    Vector2D lineNormal = line.GetLeftNormal();
+    Vertex2 lineNormal = line.GetLeftNormal();
 
     Point2D normalPoint;
     normalPoint.X = this->Center.X + lineNormal.X;
@@ -81,7 +81,7 @@ void Ball::Collide(const Segment & line) {
     this->Center.X += this->Direction.X;
     this->Center.Y += this->Direction.Y;
 
-    double d1 = -1 * (lineNormal.DotProduct(Vector2D(line.RightPoint , this->Center))) / lineNormal.Length();
+    double d1 = -1 * (lineNormal.DotProduct(Vertex2(line.RightPoint , this->Center))) / lineNormal.Length();
 
     this->Center.X -= this->Direction.X;
     this->Center.Y -= this->Direction.Y;
@@ -95,7 +95,7 @@ double Ball::PredictCollisionTime(const Segment & segment) const {
 
     Ball ball1(*this);
     Ball ball2(ball1.Color, ball1.Type, ball1.Direction , ball1.Center.X + ball1.Direction.X , ball1.Center.Y+ ball1.Direction.Y , ball1.Radius);
-    Vector2D bigTrajectory = ball1.Direction.Normalize() * 3000;
+    Vertex2 bigTrajectory = ball1.Direction.Normalize() * 3000;
 
     if (this->Direction.X == 0.0 && this->Direction.Y == 0.0) {
         return -1;
@@ -105,7 +105,7 @@ double Ball::PredictCollisionTime(const Segment & segment) const {
         return -1;
     }
 
-    Vector2D segmentNormal = segment.GetLeftNormal();
+    Vertex2 segmentNormal = segment.GetLeftNormal();
     Point2D normalPoint;
     normalPoint.X = ball1.Center.X + segmentNormal.X;
     normalPoint.Y = ball1.Center.Y + segmentNormal.Y;
@@ -114,8 +114,8 @@ double Ball::PredictCollisionTime(const Segment & segment) const {
         segmentNormal = segment.GetRightNormal();
     }
 
-    double d1 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball1.Center)) / segmentNormal.Length();
-    double d2 = segmentNormal.DotProduct(Vector2D(segment.RightPoint , ball2.Center)) / segmentNormal.Length();
+    double d1 = segmentNormal.DotProduct(Vertex2(segment.RightPoint , ball1.Center)) / segmentNormal.Length();
+    double d2 = segmentNormal.DotProduct(Vertex2(segment.RightPoint , ball2.Center)) / segmentNormal.Length();
 
     return min(( -1 * this->Radius - d1) / (d2 - d1) , (this->Radius - d1) / (d2 - d1));
 

@@ -32,8 +32,8 @@ void MouseMotionFunc(int x , int y) {
         pointOnCircle.X = Scene::Balls[0].Center.X + Scene::TableCue.Direction.X * Scene::Balls[0].Radius;
         pointOnCircle.Y = Scene::Balls[0].Center.Y + Scene::TableCue.Direction.Y * Scene::Balls[0].Radius;
 
-        Vector2D v1(mousePosition,LastMousePosition);
-        Vector2D v2(Scene::TableCue.Direction);
+        Vertex2 v1(mousePosition,LastMousePosition);
+        Vertex2 v2(Scene::TableCue.Direction);
 
         double cosAngle = v1.DotProduct(v2) / (v1.Length() * v2.Length());
 
@@ -61,7 +61,7 @@ void MousePassiveMotionFunc(int x , int y) {
     Point2D mousePosition(x, windowHeight - y);
 
     if (!Scene::TableCue.HasFocus && !Scene::BallsMoving) {
-        Vector2D direction(Scene::Balls[0].Center , mousePosition);
+        Vertex2 direction(Scene::Balls[0].Center , mousePosition);
         direction = direction.Normalize();
         direction *= -1;
 
@@ -89,7 +89,7 @@ void MouseClickFunc(int button , int state , int x , int y) {
             Point2D pointOnCircle;
             pointOnCircle.X = Scene::Balls[0].Center.X + Scene::TableCue.Direction.X * Scene::Balls[0].Radius;
             pointOnCircle.Y = Scene::Balls[0].Center.Y + Scene::TableCue.Direction.Y * Scene::Balls[0].Radius;
-            Vector2D newBallDirection(Scene::TableCue.Head, pointOnCircle);
+            Vertex2 newBallDirection(Scene::TableCue.Head, pointOnCircle);
             Scene::Balls[0].Direction = newBallDirection * 12;
             Scene::TableCue.Head = pointOnCircle;
         }

@@ -14,8 +14,8 @@ public:
 	bool Intersects(const Segment & otherSegment) const;
 	Point2D IntersectionPoint(const Segment & otherSegment) const;
 	double PointOnSegment(const Point2D & point) const;
-	Vector2D GetLeftNormal() const;
-	Vector2D GetRightNormal() const;
+	Vertex2 GetLeftNormal() const;
+	Vertex2 GetRightNormal() const;
 };
 
 #endif /* SEGMENT_H */

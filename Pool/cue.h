@@ -15,10 +15,10 @@ class Cue {
 
 public:
     Point2D Head;
-    Vector2D Direction;
+    Vertex2 Direction;
     double Length;
     bool HasFocus;
-    Cue(const Point2D & head = Point2D(0.0, 0.0), const Vector2D & direction = Vector2D(0.0, 0.0), const double & length = 0.0) :
+    Cue(const Point2D & head = Point2D(0.0, 0.0), const Vertex2 & direction = Vertex2(0.0, 0.0), const double & length = 0.0) :
             Head(head), Direction(direction), Length(length), HasFocus(false) {
 
     }

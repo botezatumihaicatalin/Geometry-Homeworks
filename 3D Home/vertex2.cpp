@@ -5,7 +5,8 @@
  *      Author: mihai
  */
 
-#include "vector2D.h"
+#include "vertex2.h"
+
 #include "math.h"
 
 double Vertex2::CrossProduct(const Vertex2 & other) const {

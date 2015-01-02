@@ -59,30 +59,30 @@ vector<Circle> Scene::TablePockets = {
 };
 
 vector<Ball> Scene::Balls = {
-    Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius),
+    Ball(White,Filled,Vertex2(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius),
 
-	Ball(Yellow,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX,Constants::FirstBallY),Constants::BallRadius),
+	Ball(Yellow,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX,Constants::FirstBallY),Constants::BallRadius),
 
-    Ball(Red,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * Constants::BallRadius,Constants::FirstBallY - Constants::BallRadius),Constants::BallRadius),
-    Ball(Red,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * Constants::BallRadius,Constants::FirstBallY + Constants::BallRadius),Constants::BallRadius),
+    Ball(Red,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * Constants::BallRadius,Constants::FirstBallY - Constants::BallRadius),Constants::BallRadius),
+    Ball(Red,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * Constants::BallRadius,Constants::FirstBallY + Constants::BallRadius),Constants::BallRadius),
 
-    Ball(Green,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY - 2 * Constants::BallRadius),Constants::BallRadius),
-    Ball(Black,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY),Constants::BallRadius),
-    Ball(Green,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY + 2 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Green,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY - 2 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Black,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY),Constants::BallRadius),
+    Ball(Green,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 2 * 2 * Constants::BallRadius,Constants::FirstBallY + 2 * Constants::BallRadius),Constants::BallRadius),
 
-    Ball(Yellow,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY - 3 * Constants::BallRadius),Constants::BallRadius),
-    Ball(Purple,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY - Constants::BallRadius),Constants::BallRadius),
-    Ball(Brown,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY + Constants::BallRadius),Constants::BallRadius),
-    Ball(Orange,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY + 3 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Yellow,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY - 3 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Purple,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY - Constants::BallRadius),Constants::BallRadius),
+    Ball(Brown,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY + Constants::BallRadius),Constants::BallRadius),
+    Ball(Orange,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 3 * 2 * Constants::BallRadius,Constants::FirstBallY + 3 * Constants::BallRadius),Constants::BallRadius),
 
-    Ball(Purple,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY - 4 * Constants::BallRadius),Constants::BallRadius),
-    Ball(Orange,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY - 2 * Constants::BallRadius),Constants::BallRadius),
-    Ball(Blue,Striped,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY),Constants::BallRadius),
-    Ball(Blue,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY + 2 * Constants::BallRadius),Constants::BallRadius),
-    Ball(Brown,Filled,Vector2D(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY + 4 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Purple,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY - 4 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Orange,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY - 2 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Blue,Striped,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY),Constants::BallRadius),
+    Ball(Blue,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY + 2 * Constants::BallRadius),Constants::BallRadius),
+    Ball(Brown,Filled,Vertex2(-0.0,0.0),Point2D(Constants::FirstBallX + 4 * 2 * Constants::BallRadius,Constants::FirstBallY + 4 * Constants::BallRadius),Constants::BallRadius),
 };
 
-Cue Scene::TableCue = Cue(Point2D(300 - Constants::BallRadius,Constants::FirstBallY), Vector2D(-1.0,0.0), 250);
+Cue Scene::TableCue = Cue(Point2D(300 - Constants::BallRadius,Constants::FirstBallY), Vertex2(-1.0,0.0), 250);
 
 bool Scene::BallsMoving = false;
 
@@ -334,7 +334,7 @@ void Scene::Movement(void) {
 
         if (!whiteBallOnTable)
         {
-            Balls.push_back(Ball(White,Filled,Vector2D(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius));
+            Balls.push_back(Ball(White,Filled,Vertex2(0.0, 0.0),Point2D(1200 * 1 / 4,700 / 2),Constants::BallRadius));
             swap(Balls[0],Balls.back());
         }
     }
@@ -382,7 +382,7 @@ void Scene::Render(void) {
         glEnd();
 
         Ball cueBallCopy(Balls[0]);
-        cueBallCopy.Direction = Vector2D(-1 * TableCue.Direction.X * 1200, -1 * TableCue.Direction.Y * 1200);
+        cueBallCopy.Direction = Vertex2(-1 * TableCue.Direction.X * 1200, -1 * TableCue.Direction.Y * 1200);
 
         double minimumCollisionTime = numeric_limits<double>::max();
         Ball colidedBall(Balls[0]);
