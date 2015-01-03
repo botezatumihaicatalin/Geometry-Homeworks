@@ -43,8 +43,8 @@ void KeyPressed(unsigned char key, int x, int y) {
 
 void loadModels() {
 	bool result = model.Load("/",
-				"/home/mihai/eclipse-stuff/Laplacian Transforms/sofa.obj",
-				"/home/mihai/eclipse-stuff/Laplacian Transforms/sofa.mtl");
+				"untitled2.obj",
+				"untitled2.mtl");
 	if (result) {
 		printf("Succesfully loaded sofa!\n");
 	} else {
@@ -55,7 +55,7 @@ void loadModels() {
 void init(int argc, char ** argv) {
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowPosition(50, 50);
 	glutInitWindowSize(1200, 800);
 	glutCreateWindow("3D Home");
@@ -75,6 +75,12 @@ void init(int argc, char ** argv) {
 	glutKeyboardFunc(KeyPressed);
 
 	loadModels();
+
+	glEnable (GL_LIGHTING);
+	GLfloat pozitial0 [ ] = {0.0, 5.0, 0.0, 1.0};
+	glLightfv (GL_LIGHT0, GL_POSITION, pozitial0);
+
+	glEnable (GL_LIGHT0);
 
 	glutMainLoop();
 }

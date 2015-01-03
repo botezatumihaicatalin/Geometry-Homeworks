@@ -26,7 +26,122 @@ ObjObject::~ObjObject() {
 	_listId = 0;
 }
 
+bool ObjModel::_processMtlLine(const string & line) {
+
+	vector<string> splittedLine = split(line, ' ');
+	static string lastMaterialDefined = "";
+
+	int splittedLineSize = splittedLine.size();
+
+	if (splittedLineSize == 0) {
+		return true;
+	}
+
+	if (splittedLine[0] == "#") {
+		return true;
+	}
+
+	if (splittedLine[0] == "newmtl" && splittedLineSize >= 2) {
+
+		string materialName = "";
+
+		for (unsigned int index = 1; index < splittedLine.size(); index++) {
+			materialName += splittedLine[index];
+		}
+
+		lastMaterialDefined = materialName;
+		Materials[materialName] = ObjMaterial(lastMaterialDefined);
+		return true;
+	}
+
+	if (splittedLine[0] == "Ka" && splittedLineSize >= 4) {
+
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.AmbientRGB[0] = atof(splittedLine[1].c_str());
+		materialRef.AmbientRGB[1] = atof(splittedLine[2].c_str());
+		materialRef.AmbientRGB[2] = atof(splittedLine[3].c_str());
+		return true;
+	}
+
+	if (splittedLine[0] == "Kd" && splittedLineSize >= 4) {
+
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.DiffuseRGB[0] = atof(splittedLine[1].c_str());
+		materialRef.DiffuseRGB[1] = atof(splittedLine[2].c_str());
+		materialRef.DiffuseRGB[2] = atof(splittedLine[3].c_str());
+		return true;
+	}
+
+	if (splittedLine[0] == "Ks" && splittedLineSize >= 4) {
+
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.SpecularRGB[0] = atof(splittedLine[1].c_str());
+		materialRef.SpecularRGB[1] = atof(splittedLine[2].c_str());
+		materialRef.SpecularRGB[2] = atof(splittedLine[3].c_str());
+		return true;
+	}
+
+	if (splittedLine[0] == "Ns" && splittedLineSize >= 2) {
+
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.SpecularExponent = atof(splittedLine[1].c_str());
+		return true;
+	}
+
+	if ((splittedLine[0] == "d" || splittedLine[0] == "Tr")
+			&& splittedLineSize >= 2) {
+
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.Transparency = atof(splittedLine[1].c_str());
+		return true;
+	}
+
+	if (splittedLine[0] == "illum" && splittedLineSize >= 2) {
+		auto materialIt = Materials.find(lastMaterialDefined);
+		if (materialIt == Materials.end()) {
+			return false;
+		}
+
+		ObjMaterial & materialRef = materialIt->second;
+		materialRef.Illumination = atoi(splittedLine[1].c_str());
+		return true;
+	}
+
+	if (splittedLine[0] == "Ni") {
+		return true;
+	}
+
+	return false;
+}
+
 bool ObjModel::_processObjLine(const string & line) {
+
+	static string lastMaterialUsed = "";
 
 	vector<string> splittedLine = split(line, ' ');
 
@@ -72,24 +187,29 @@ bool ObjModel::_processObjLine(const string & line) {
 			Objects.push_back(ObjObject("Untitled"));
 		}
 
-		ObjFace newFace;
+		ObjFace newFace(lastMaterialUsed);
 
 		for (unsigned int index = 1; index < splittedLine.size(); index++) {
 
 			ObjFaceItem faceItem;
 
-			if (sscanf(splittedLine[index].c_str(), "%d", &faceItem.VertexIndex) == 1) {
-				faceItem.VertexIndex --;
-			} else if (sscanf(splittedLine[index].c_str(), "%d/%d", &faceItem.VertexIndex, &faceItem.TextureIndex) == 2) {
-				faceItem.VertexIndex --;
-				faceItem.TextureIndex --;
-			} else if (sscanf(splittedLine[index].c_str(), "%d/%d/%d", &faceItem.VertexIndex, &faceItem.TextureIndex, &faceItem.NormalIndex) == 3) {
-				faceItem.VertexIndex --;
-				faceItem.TextureIndex --;
-				faceItem.NormalIndex --;
-			} else if (sscanf(splittedLine[index].c_str(), "%d//%d", &faceItem.VertexIndex, &faceItem.NormalIndex) == 2) {
-				faceItem.VertexIndex --;
-				faceItem.NormalIndex --;
+			if (sscanf(splittedLine[index].c_str(), "%d", &faceItem.VertexIndex)
+					== 1) {
+				faceItem.VertexIndex--;
+			} else if (sscanf(splittedLine[index].c_str(), "%d/%d",
+					&faceItem.VertexIndex, &faceItem.TextureIndex) == 2) {
+				faceItem.VertexIndex--;
+				faceItem.TextureIndex--;
+			} else if (sscanf(splittedLine[index].c_str(), "%d/%d/%d",
+					&faceItem.VertexIndex, &faceItem.TextureIndex,
+					&faceItem.NormalIndex) == 3) {
+				faceItem.VertexIndex--;
+				faceItem.TextureIndex--;
+				faceItem.NormalIndex--;
+			} else if (sscanf(splittedLine[index].c_str(), "%d//%d",
+					&faceItem.VertexIndex, &faceItem.NormalIndex) == 2) {
+				faceItem.VertexIndex--;
+				faceItem.NormalIndex--;
 			} else {
 				return false;
 			}
@@ -100,7 +220,7 @@ bool ObjModel::_processObjLine(const string & line) {
 		return true;
 	}
 
-	if (splittedLine[0] == "o" && splittedLineSize >= 1) {
+	if (splittedLine[0] == "o" && splittedLineSize >= 2) {
 
 		string objectName = "";
 
@@ -112,18 +232,20 @@ bool ObjModel::_processObjLine(const string & line) {
 		return true;
 	}
 
+	if (splittedLine[0] == "usemtl" && splittedLineSize >= 2) {
+
+		string materialName = "";
+
+		for (unsigned int index = 1; index < splittedLine.size(); index++) {
+			materialName += splittedLine[index];
+		}
+
+		lastMaterialUsed = materialName;
+		return true;
+	}
+
 	if (splittedLine[0] == "g") {
 		// TODO : maybe handle groups?
-		return true;
-	}
-
-	if (splittedLine[0] == "mtllib") {
-		// TODO : need to handle this later
-		return true;
-	}
-
-	if (splittedLine[0] == "usemtl") {
-		// TODO : need to handle materials
 		return true;
 	}
 
@@ -132,12 +254,17 @@ bool ObjModel::_processObjLine(const string & line) {
 		return true;
 	}
 
-
+	if (splittedLine[0] == "mtllib") {
+		// No need to handle this, we can give the paths manually to the material
+		// files.
+		return true;
+	}
 
 	return false;
 }
 
-bool ObjModel::Load(const string & dataPath, const string & objFilePath, const string & materialFilePath) {
+bool ObjModel::Load(const string & dataPath, const string & objFilePath,
+		const string & materialFilePath) {
 
 	std::ifstream objFileStream(objFilePath);
 	std::ifstream materialFileStream(materialFilePath);
@@ -148,7 +275,13 @@ bool ObjModel::Load(const string & dataPath, const string & objFilePath, const s
 
 	string line;
 
-	for (;getline(objFileStream, line);) {
+	for (; getline(materialFileStream, line);) {
+		if (!_processMtlLine(line)) {
+			return false;
+		}
+	}
+
+	for (; getline(objFileStream, line);) {
 		if (!_processObjLine(line)) {
 			return false;
 		}
@@ -170,18 +303,26 @@ void ObjModel::BuildObject(int objectIndex) {
 	ObjObject & refObject = Objects[objectIndex];
 
 	if (refObject._listId == 0) {
-		refObject._listId = glGenLists(1);;
+		refObject._listId = glGenLists(1);
 	}
 
 	glNewList(refObject._listId, GL_COMPILE);
 
-	glEnable( GL_NORMALIZE );
-	glEnable( GL_TEXTURE_2D );
+	glEnable( GL_NORMALIZE);
+	glEnable( GL_TEXTURE_2D);
 
 	glColor3d(0, 0, 1);
 
 	for (auto & face : refObject.Faces) {
 		glBegin(GL_POLYGON);
+
+		auto materialIt = Materials.find(face.MaterialName);
+
+		if (materialIt != Materials.end()) {
+			glMaterialfv( GL_FRONT, GL_AMBIENT, materialIt->second.AmbientRGB);
+			glMaterialfv( GL_FRONT, GL_DIFFUSE, materialIt->second.DiffuseRGB);
+			glMaterialfv( GL_FRONT, GL_SPECULAR, materialIt->second.SpecularRGB);
+		}
 
 		for (auto & faceItem : face.FaceItems) {
 			if (faceItem.NormalIndex != -1) {
@@ -196,8 +337,8 @@ void ObjModel::BuildObject(int objectIndex) {
 		glEnd();
 	}
 
-	glDisable( GL_NORMALIZE );
-	glDisable( GL_TEXTURE_2D );
+	glDisable( GL_NORMALIZE);
+	glDisable( GL_TEXTURE_2D);
 
 	glEndList();
 }

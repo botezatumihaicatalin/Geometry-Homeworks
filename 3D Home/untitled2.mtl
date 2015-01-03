@@ -1,11 +1,11 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl Leather__roz
-Ns 90.196078
+newmtl Material1
+Ns 0.000000
 Ka 0.000000 0.000000 0.000000
-Kd 0.437710 0.399561 0.333302
-Ks 0.043137 0.043137 0.043137
+Kd 0.125475 0.000000 0.323855
+Ks 0.314874 0.007242 0.578313
 Ni 1.000000
 d 1.000000
 illum 2

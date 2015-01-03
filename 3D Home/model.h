@@ -8,11 +8,13 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "vertex3.h"
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 #include <GL/freeglut.h>
+#include <map>
+
+#include "vertex3.h"
 
 using namespace std;
 
@@ -54,6 +56,24 @@ public :
 	string MaterialName;
 };
 
+class ObjMaterial {
+public :
+	ObjMaterial(const string & name = "") : Name(name), Transparency(1.0), Illumination(2), SpecularExponent(1.0) {
+		AmbientRGB[0] = AmbientRGB[1] = AmbientRGB[2] = 1.0f;
+		DiffuseRGB[0] = DiffuseRGB[1] = DiffuseRGB[2] = 1.0f;
+		SpecularRGB[0] = SpecularRGB[1] = SpecularRGB[2] = 1.0f;
+	}
+	string Name;
+
+	float AmbientRGB[3];
+	float DiffuseRGB[3];
+	float SpecularRGB[3];
+
+	double Transparency;
+	int Illumination;
+	double SpecularExponent;
+};
+
 class ObjModel {
 
 public :
@@ -61,6 +81,7 @@ public :
 	vector <ObjNormal> Normals;
 	vector <ObjTexture> Textures;
 	vector <ObjObject> Objects;
+	map <string, ObjMaterial> Materials;
 	bool Load(const string & dataPath, const string & objFilePath, const string & materialFilePath);
 	void BuildObject(int objectIndex);
 	void RenderObject(int objectIndex);
