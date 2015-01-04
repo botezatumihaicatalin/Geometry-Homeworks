@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <limits>
 
 vector<string> & split(const string &s, char delim, vector<string> &elems) {
 	stringstream ss(s);
@@ -26,10 +27,71 @@ ObjObject::~ObjObject() {
 	_listId = 0;
 }
 
+void ObjModel::ClearModelData() {
+	Materials.clear();
+	Objects.clear();
+	Normals.clear();
+	Vertices.clear();
+	Textures.clear();
+}
+
+void ObjModel::RenderBoundingBox() {
+
+	glColor4f(1, 0, 0, 1);
+	static const float red[] = { 1, 0, 0, 1 };
+	static const float black[] = { 0, 0, 0, 1 };
+	glMaterialfv( GL_FRONT, GL_EMISSION, red);
+
+	glLineWidth(2);
+	glBegin( GL_LINES);
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+
+	// Front lines
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+
+	// Top lines
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MinimumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MaximumVertex.X, MaximumVertex.Y, MinimumVertex.Z);
+
+	// Bottom lines
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MinimumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MaximumVertex.Z);
+	glVertex3f(MaximumVertex.X, MinimumVertex.Y, MinimumVertex.Z);
+	glEnd();
+
+	glColor4f(1, 1, 1, 1);
+
+	glMaterialfv( GL_FRONT, GL_EMISSION, black);
+}
+
 bool ObjModel::_processMtlLine(const string & line) {
 
 	vector<string> splittedLine = split(line, ' ');
-	static string lastMaterialDefined = "";
 
 	int splittedLineSize = splittedLine.size();
 
@@ -49,14 +111,14 @@ bool ObjModel::_processMtlLine(const string & line) {
 			materialName += splittedLine[index];
 		}
 
-		lastMaterialDefined = materialName;
-		Materials[materialName] = ObjMaterial(lastMaterialDefined);
+		_lastMaterialNameRead = materialName;
+		Materials[materialName] = ObjMaterial(_lastMaterialNameRead);
 		return true;
 	}
 
 	if (splittedLine[0] == "Ka" && splittedLineSize >= 4) {
 
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -70,7 +132,7 @@ bool ObjModel::_processMtlLine(const string & line) {
 
 	if (splittedLine[0] == "Kd" && splittedLineSize >= 4) {
 
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -84,7 +146,7 @@ bool ObjModel::_processMtlLine(const string & line) {
 
 	if (splittedLine[0] == "Ks" && splittedLineSize >= 4) {
 
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -98,7 +160,7 @@ bool ObjModel::_processMtlLine(const string & line) {
 
 	if (splittedLine[0] == "Ns" && splittedLineSize >= 2) {
 
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -111,7 +173,7 @@ bool ObjModel::_processMtlLine(const string & line) {
 	if ((splittedLine[0] == "d" || splittedLine[0] == "Tr")
 			&& splittedLineSize >= 2) {
 
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -122,7 +184,7 @@ bool ObjModel::_processMtlLine(const string & line) {
 	}
 
 	if (splittedLine[0] == "illum" && splittedLineSize >= 2) {
-		auto materialIt = Materials.find(lastMaterialDefined);
+		auto materialIt = Materials.find(_lastMaterialNameRead);
 		if (materialIt == Materials.end()) {
 			return false;
 		}
@@ -141,14 +203,12 @@ bool ObjModel::_processMtlLine(const string & line) {
 
 bool ObjModel::_processObjLine(const string & line) {
 
-	static string lastMaterialUsed = "";
-
 	vector<string> splittedLine = split(line, ' ');
 
 	int splittedLineSize = splittedLine.size();
 
 	if (splittedLineSize == 0) {
-		return false;
+		return true;
 	}
 
 	if (splittedLine[0] == "#") {
@@ -187,7 +247,7 @@ bool ObjModel::_processObjLine(const string & line) {
 			Objects.push_back(ObjObject("Untitled"));
 		}
 
-		ObjFace newFace(lastMaterialUsed);
+		ObjFace newFace(_lastObjectMaterialRead);
 
 		for (unsigned int index = 1; index < splittedLine.size(); index++) {
 
@@ -240,7 +300,7 @@ bool ObjModel::_processObjLine(const string & line) {
 			materialName += splittedLine[index];
 		}
 
-		lastMaterialUsed = materialName;
+		_lastObjectMaterialRead = materialName;
 		return true;
 	}
 
@@ -274,22 +334,58 @@ bool ObjModel::Load(const string & dataPath, const string & objFilePath,
 	}
 
 	string line;
+	_lastObjectMaterialRead = "";
+	_lastMaterialNameRead = "";
+
+	MinimumVertex.X = numeric_limits<double>::max();
+	MinimumVertex.Y = numeric_limits<double>::max();
+	MinimumVertex.Z = numeric_limits<double>::max();
+
+	MaximumVertex.X = numeric_limits<double>::min();
+	MaximumVertex.Y = numeric_limits<double>::min();
+	MaximumVertex.Z = numeric_limits<double>::min();
 
 	for (; getline(materialFileStream, line);) {
 		if (!_processMtlLine(line)) {
+			ClearModelData();
 			return false;
 		}
 	}
 
 	for (; getline(objFileStream, line);) {
 		if (!_processObjLine(line)) {
+			ClearModelData();
 			return false;
+		}
+	}
+
+	for (ObjVertex & objVertex : Vertices) {
+		if (MinimumVertex.X > objVertex.X) {
+			MinimumVertex.X = objVertex.X;
+		}
+		if (MinimumVertex.Y > objVertex.Y) {
+			MinimumVertex.Y = objVertex.Y;
+		}
+		if (MinimumVertex.Z > objVertex.Z) {
+			MinimumVertex.Z = objVertex.Z;
+		}
+
+		if (MaximumVertex.X < objVertex.X) {
+			MaximumVertex.X = objVertex.X;
+		}
+		if (MaximumVertex.Y < objVertex.Y) {
+			MaximumVertex.Y = objVertex.Y;
+		}
+		if (MaximumVertex.Z < objVertex.Z) {
+			MaximumVertex.Z = objVertex.Z;
 		}
 	}
 
 	for (unsigned int index = 0; index < Objects.size(); index++) {
 		BuildObject(index);
 	}
+
+
 
 	return true;
 

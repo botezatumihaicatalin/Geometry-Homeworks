@@ -4,7 +4,7 @@ OBJS =		main.o camera.o vertex2.o vertex3.o model.o
 
 LIBS =		-lGL -lGLU -lglut
 
-TARGET =	Laplacian
+TARGET =	3DHome
 
 $(TARGET):	$(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)

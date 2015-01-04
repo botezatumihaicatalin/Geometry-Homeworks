@@ -82,13 +82,22 @@ public :
 	vector <ObjTexture> Textures;
 	vector <ObjObject> Objects;
 	map <string, ObjMaterial> Materials;
+
+	Vertex3 MinimumVertex;
+	Vertex3 MaximumVertex;
+
 	bool Load(const string & dataPath, const string & objFilePath, const string & materialFilePath);
 	void BuildObject(int objectIndex);
 	void RenderObject(int objectIndex);
+	void ClearModelData();
+	void RenderBoundingBox();
 
 private:
 	bool _processObjLine(const string & line);
 	bool _processMtlLine(const string & line);
+
+	string _lastObjectMaterialRead;
+	string _lastMaterialNameRead;
 };
 
 class ObjObject {
