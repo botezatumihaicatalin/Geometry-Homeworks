@@ -324,6 +324,8 @@ void ObjModel::BuildObject(int objectIndex) {
 			glMaterialfv( GL_FRONT, GL_SPECULAR, materialIt->second.SpecularRGB);
 		}
 
+		glShadeModel(GL_SMOOTH);
+
 		for (auto & faceItem : face.FaceItems) {
 			if (faceItem.NormalIndex != -1) {
 				Vertex3 & refNormal = Normals[faceItem.NormalIndex];
