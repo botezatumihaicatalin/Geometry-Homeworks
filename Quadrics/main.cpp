@@ -8,14 +8,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <math.h>
+#include <iostream>
+
+const double looking_sensitivity = 1.0 / 200.0; // a value less than 1
+const double moving_sensitivity =  1.0 / 10.0; // a value less than 1
 
 double camera_x = 0, camera_y = 0, camera_z = 0;
 double looking_x  = 0, looking_y = 0, looking_z = -1;
 double looking_angle_x = 0, looking_angle_y = 0;
 double last_mouse_x = -1, last_mouse_y = -1;
+
 int quadric_list;
+
+using namespace std;
 
 void init() {
 	glClearColor(1.0 , 1.0, 1.0, 1.0);
@@ -28,11 +35,15 @@ void init() {
 	double step = 0.1;
 	for (double x = -bound ; x < bound; x+= step) {
 		for (double y = -bound; y < bound; y+= step) {
-			if (x * x + y * y - 1 < 0) {
-				continue;
-			}
+
 			double current_y = y;
 			double next_y = y + step;
+
+			if ((x * x + current_y * current_y - 1 < 0.0) ||
+				(x * x + next_y * next_y - 1 < 0.0)) {
+				continue;
+			}
+
 			double current_z1 = sqrt(x * x + current_y * current_y - 1);
 			double current_z2 = -current_z1;
 			double next_z1 = sqrt(x * x + next_y * next_y - 1);
@@ -73,7 +84,8 @@ void render_objects2() {
 	glCallList(quadric_list);
 }
 
-void display_function() {
+void render_function() {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
@@ -82,7 +94,6 @@ void display_function() {
 	render_objects2();
 
 	glutSwapBuffers();
-	glFlush();
 }
 
 void mouse_move(int x , int y) {
@@ -90,8 +101,8 @@ void mouse_move(int x , int y) {
 		looking_x = camera_x + cos(looking_angle_x);
 		looking_y = camera_y + cos(looking_angle_y);
 		looking_z = camera_z + sin(looking_angle_x);
-		looking_angle_x += (x - last_mouse_x) / 100;
-		looking_angle_y += (y - last_mouse_y) / 100;
+		looking_angle_x += (x - last_mouse_x) * looking_sensitivity;
+		looking_angle_y += (y - last_mouse_y) * looking_sensitivity;
 	}
 
 	last_mouse_x = x;
@@ -100,7 +111,6 @@ void mouse_move(int x , int y) {
 }
 
 void keyboard_func(unsigned char key , int x , int y) {
-
 	double delta_x = looking_x - camera_x;
 	double delta_y = looking_y - camera_y;
 	double delta_z = looking_z - camera_z;
@@ -108,15 +118,21 @@ void keyboard_func(unsigned char key , int x , int y) {
 
 	switch (key) {
 	case 'w' :
-		camera_x += delta_x / length * 0.1;
-		camera_y += delta_y / length * 0.1;
-		camera_z += delta_z / length * 0.1;
+		camera_x += delta_x / length * moving_sensitivity;
+		camera_y += delta_y / length * moving_sensitivity;
+		camera_z += delta_z / length * moving_sensitivity;
+		looking_x += delta_x / length * moving_sensitivity;
+		looking_y += delta_y / length * moving_sensitivity;
+		looking_z += delta_z / length * moving_sensitivity;
 		break;
 
 	case 's' :
-		camera_x -= delta_x / length * 0.1;
-		camera_y -= delta_y / length * 0.1;
-		camera_z -= delta_z / length * 0.1;
+		camera_x -= delta_x / length * moving_sensitivity;
+		camera_y -= delta_y / length * moving_sensitivity;
+		camera_z -= delta_z / length * moving_sensitivity;
+		looking_x -= delta_x / length * moving_sensitivity;
+		looking_y -= delta_y / length * moving_sensitivity;
+		looking_z -= delta_z / length * moving_sensitivity;
 		break;
 	}
 
@@ -128,7 +144,7 @@ int main(int argc , char ** argv) {
 	glutInitWindowSize(1300, 768);
 	glutCreateWindow("Quadrics");
 	init();
-	glutDisplayFunc(display_function);
+	glutDisplayFunc(render_function);
 	glutReshapeFunc(reshape_function);
 	glutPassiveMotionFunc(mouse_move);
 	glutKeyboardFunc(keyboard_func);
