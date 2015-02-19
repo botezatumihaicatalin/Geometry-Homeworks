@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #include "scene.h"
 #include <time.h>
 

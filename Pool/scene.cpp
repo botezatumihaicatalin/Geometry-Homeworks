@@ -1,6 +1,6 @@
 #include "scene.h"
 
-#include <GL/freeglut_std.h>
+#include <GL/glut.h>
 #include <GL/gl.h>
 #include <math.h>
 #include <cstdio>
