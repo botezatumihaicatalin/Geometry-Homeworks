@@ -6,11 +6,11 @@
 // Description : Hello World in C, Ansi-style
 //============================================================================
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <GL/freeglut.h>
+#include <GL/freeglut_std.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <math.h>
-#include <iostream>
+#include <stdlib.h>
 
 const double looking_sensitivity = 1.0 / 200.0; // a value less than 1
 const double moving_sensitivity =  1.0 / 10.0; // a value less than 1
@@ -24,36 +24,66 @@ int quadric_list;
 
 using namespace std;
 
-void init() {
+double QuadricFunction(double x , double y) {
+	// z*z = ?
+	return x * x + y * y - 1;
+}
+
+void Init() {
 	glClearColor(1.0 , 1.0, 1.0, 1.0);
 	glEnable(GL_DEPTH_TEST);
 
 	quadric_list = glGenLists(1);
 	glNewList(quadric_list , GL_COMPILE);
-	glLineWidth(5.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glLineWidth(2.0f);
 	double bound = 5;
 	double step = 0.1;
-	for (double x = -bound ; x < bound; x+= step) {
+	for (double x = -bound ; x <= bound; x+= step) {
 		for (double y = -bound; y < bound; y+= step) {
 
 			double current_y = y;
 			double next_y = y + step;
+			double current_x = x;
+			double next_x = x + step;
 
-			if ((x * x + current_y * current_y - 1 < 0.0) ||
-				(x * x + next_y * next_y - 1 < 0.0)) {
+			if ((QuadricFunction(current_x , current_y) < 0.0) ||
+				(QuadricFunction(current_x , next_y) < 0.0) ||
+				(QuadricFunction(next_x , current_y) < 0.0) ||
+				(QuadricFunction(next_x , next_y) < 0.0)) {
 				continue;
 			}
 
-			double current_z1 = sqrt(x * x + current_y * current_y - 1);
-			double current_z2 = -current_z1;
-			double next_z1 = sqrt(x * x + next_y * next_y - 1);
-			double next_z2 = -next_z1;
+			glColor3d(0, 0 ,1);
+			glBegin(GL_QUADS);
+			glVertex3d(current_x , current_y , sqrt(QuadricFunction(current_x , current_y)));
+			glVertex3d(current_x , next_y , sqrt(QuadricFunction(current_x , next_y)));
+			glVertex3d(next_x , next_y , sqrt(QuadricFunction(next_x , next_y)));
+			glVertex3d(next_x , current_y , sqrt(QuadricFunction(next_x , current_y)));
+			glEnd();
 
-			glBegin(GL_LINES);
-			glVertex3d(x , current_y , current_z1);
-			glVertex3d(x , next_y , next_z1);
-			glVertex3d(x , current_y , current_z2);
-			glVertex3d(x , next_y , next_z2);
+			glColor3d(0, 0, 0);
+			glBegin(GL_LINE_STRIP);
+			glVertex3d(current_x , current_y , sqrt(QuadricFunction(current_x , current_y)));
+			glVertex3d(current_x , next_y , sqrt(QuadricFunction(current_x , next_y)));
+			glVertex3d(next_x , next_y , sqrt(QuadricFunction(next_x , next_y)));
+			glVertex3d(next_x , current_y , sqrt(QuadricFunction(next_x , current_y)));
+			glEnd();
+
+			glColor3d(0, 0 ,1);
+			glBegin(GL_QUADS);
+			glVertex3d(current_x , current_y , -sqrt(QuadricFunction(current_x , current_y)));
+			glVertex3d(current_x , next_y , -sqrt(QuadricFunction(current_x , next_y)));
+			glVertex3d(next_x , next_y , -sqrt(QuadricFunction(next_x , next_y)));
+			glVertex3d(next_x , current_y , -sqrt(QuadricFunction(next_x , current_y)));
+			glEnd();
+
+			glColor3d(0, 0, 0);
+			glBegin(GL_LINE_STRIP);
+			glVertex3d(current_x , current_y , -sqrt(QuadricFunction(current_x , current_y)));
+			glVertex3d(current_x , next_y , -sqrt(QuadricFunction(current_x , next_y)));
+			glVertex3d(next_x , next_y , -sqrt(QuadricFunction(next_x , next_y)));
+			glVertex3d(next_x , current_y , -sqrt(QuadricFunction(next_x , current_y)));
 			glEnd();
 		}
 	}
@@ -61,7 +91,7 @@ void init() {
 
 }
 
-void reshape_function(int width , int height) {
+void ReshapeFunction(int width , int height) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0 , 0 , width, height);
@@ -70,7 +100,7 @@ void reshape_function(int width , int height) {
 	glutWarpPointer(width / 2 , height / 2);
 }
 
-void render_objects() {
+void RenderObjects() {
 	glColor3d(1.0 , 0.0, 0.0);
 	glTranslated(0 , 0 , -2);
 	glutSolidCube(1.0);
@@ -79,24 +109,24 @@ void render_objects() {
 	glutWireCube(1);
 }
 
-void render_objects2() {
+void RenderObjects2() {
 	glColor3d(0, 0 ,1);
 	glCallList(quadric_list);
 }
 
-void render_function() {
+void RenderFunction() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
 	gluLookAt(camera_x , camera_y , camera_z , looking_x , looking_y , looking_z , 0 , 1 , 0);
 
-	render_objects2();
+	RenderObjects2();
 
 	glutSwapBuffers();
 }
 
-void mouse_move(int x , int y) {
+void MouseMove(int x , int y) {
 	if (last_mouse_x != -1 && last_mouse_y != -1) {
 		looking_x = camera_x + cos(looking_angle_x);
 		looking_y = camera_y + cos(looking_angle_y);
@@ -110,7 +140,7 @@ void mouse_move(int x , int y) {
 	glutPostRedisplay();
 }
 
-void keyboard_func(unsigned char key , int x , int y) {
+void KeyboardFunc(unsigned char key , int x , int y) {
 	double delta_x = looking_x - camera_x;
 	double delta_y = looking_y - camera_y;
 	double delta_z = looking_z - camera_z;
@@ -143,11 +173,11 @@ int main(int argc , char ** argv) {
 	glutInit(&argc , argv);
 	glutInitWindowSize(1300, 768);
 	glutCreateWindow("Quadrics");
-	init();
-	glutDisplayFunc(render_function);
-	glutReshapeFunc(reshape_function);
-	glutPassiveMotionFunc(mouse_move);
-	glutKeyboardFunc(keyboard_func);
+	Init();
+	glutDisplayFunc(RenderFunction);
+	glutReshapeFunc(ReshapeFunction);
+	glutPassiveMotionFunc(MouseMove);
+	glutKeyboardFunc(KeyboardFunc);
 	glutMainLoop();
 	return EXIT_SUCCESS;
 }
