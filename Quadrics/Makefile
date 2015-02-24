@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-OBJS =		main.o
+OBJS =		main.o vertex3.o
 
 LIBS =		-lfreeglut -lglu32 -lopengl32
 

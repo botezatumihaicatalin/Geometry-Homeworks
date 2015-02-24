@@ -11,6 +11,10 @@
 #include <GL/glu.h>
 #include <math.h>
 #include <stdlib.h>
+#include <iostream>
+
+#include "vertex3.h"
+
 
 const double looking_sensitivity = 1.0 / 200.0; // a value less than 1
 const double moving_sensitivity =  1.0 / 10.0; // a value less than 1
@@ -24,89 +28,191 @@ int quadric_list;
 
 using namespace std;
 
-double Cone(double x , double y) {
-	return x * x + y * y;
-}
-
-double Paraboloid(double x , double y) {
-	return x * x * x * x + y * y * y * y + 2 * x * x * y * y;
-}
-
-double Sphere(double x , double y) {
-	return 1 - x * x - y * y;
-}
-
-double HiperboloidWithOneSheet(double x , double y) {
+double HyperboloidWithOneSheet(double x , double y) {
 	return x * x + y * y - 1;
 }
 
-double HiperboloidWithTwoSheets(double x , double y) {
+double HyperboloidWithTwoSheets(double x , double y) {
 	return x * x + y * y + 1;
 }
 
-double QuadricFunction(double x , double y) {
-	// z*z = ?
-	return Cone(x , y);
+void RenderElipsoid(double a , double b , double c) {
+	const double pi = 3.14159265;
+	double u_step = 0.1;
+	double v_step = 0.1;
+	for (double u = 0 ; u <= pi * 2; u+= u_step) {
+		for (double v = 0; v <= pi; v+= v_step) {
+
+			Vertex3 u1 , u2 , u3 , u4;
+			Vertex3 normal;
+			u1.x = a * sin(u) * cos(v);
+			u1.y = b * sin(u) * sin(v);
+			u1.z = c * cos(u);
+			u2.x = a * sin(u) * cos(v + v_step);
+			u2.y = b * sin(u) * sin(v + v_step);
+			u2.z = c * cos(u);
+			u3.x = a * sin(u + u_step) * cos(v + v_step);
+			u3.y = b * sin(u + u_step) * sin(v + v_step);
+			u3.z = c * cos(u + u_step);
+			u4.x = a * sin(u + u_step) * cos(v);
+			u4.y = b * cos(u + u_step) * sin(v);
+			u4.z = c * cos(u + u_step);
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+		}
+	}
+}
+
+void RenderCone(double a , double b , double c) {
+	const double pi = 3.14159265;
+	double u_step = 0.1;
+	double v_step = 0.1;
+	for (double u = -2 ; u < 2; u+= u_step) {
+		for (double v = 0; v <= pi * 2; v+= v_step) {
+
+			Vertex3 u1 , u2 , u3 , u4;
+			Vertex3 normal;
+			u1.x = a * u * cos(v);
+			u1.y = b * u * sin(v);
+			u1.z = c * u;
+			u2.x = a * u * cos(v + v_step);
+			u2.y = b * u * sin(v + v_step);
+			u2.z = c * u;
+			u3.x = a * (u + u_step) * cos(v + v_step);
+			u3.y = b * (u + u_step) * sin(v + v_step);
+			u3.z = c * (u + u_step);
+			u4.x = a * (u + u_step) * cos(v);
+			u4.y = b * (u + u_step) * sin(v);
+			u4.z = c * (u + u_step);
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			cout << u1.x << " " << u1.y  << " " << u1.z << endl;
+			cout << u2.x << " " << u2.y  << " " << u2.z << endl;
+			cout << u3.x << " " << u3.y  << " " << u3.z << endl;
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+		}
+	}
+}
+
+void RenderHyperboloidWithTwoSheets(double a , double b , double c) {
+	const double pi = 3.14159265;
+	double u_step = 0.1;
+	double v_step = 0.1;
+	for (double u = -5 ; u < 5; u+= u_step) {
+		for (double v = 0; v <= pi * 2; v+= v_step) {
+
+			Vertex3 u1 , u2 , u3 , u4;
+			Vertex3 normal;
+			u1.x = a * sinh(u) * cos(v);
+			u1.y = b * sinh(u) * sin(v);
+			u1.z = c * cosh(u);
+			u2.x = a * sinh(u) * cos(v + v_step);
+			u2.y = b * sinh(u) * sin(v + v_step);
+			u2.z = c * cosh(u);
+			u3.x = a * sinh(u + u_step) * cos(v + v_step);
+			u3.y = b * sinh(u + u_step) * sin(v + v_step);
+			u3.z = c * cosh(u + u_step);
+			u4.x = a * sinh(u + u_step) * cos(v);
+			u4.y = b * sinh(u + u_step) * sin(v);
+			u4.z = c * cosh(u + u_step);
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+		}
+	}
+}
+
+void RenderHyperboloidWithOneSheet(double a , double b , double c) {
+	const double pi = 3.14159265;
+	double u_step = 0.1;
+	double v_step = 0.1;
+	for (double u = -5 ; u < 5; u+= u_step) {
+		for (double v = 0; v <= pi * 2; v+= v_step) {
+
+			Vertex3 u1 , u2 , u3 , u4;
+			Vertex3 normal;
+			u1.x = a * sqrt(1 + u * u) * cos(v);
+			u1.y = b * sqrt(1 + u * u) * sin(v);
+			u1.z = c * u;
+			u2.x = a * sqrt(1 + u * u) * cos(v + v_step);
+			u2.y = b * sqrt(1 + u * u) * sin(v + v_step);
+			u2.z = c * u;
+			u3.x = a * sqrt(1 + (u + u_step)* (u + u_step)) * cos(v + v_step);
+			u3.y = b * sqrt(1 + (u + u_step)* (u + u_step)) * sin(v + v_step);
+			u3.z = c * (u + u_step);
+			u4.x = a * sqrt(1 + (u + u_step)* (u + u_step)) * cos(v);
+			u4.y = b * sqrt(1 + (u + u_step)* (u + u_step)) * sin(v);
+			u4.z = c * (u + u_step);
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+		}
+	}
 }
 
 void Init() {
 	glClearColor(1.0 , 1.0, 1.0, 1.0);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 
 	quadric_list = glGenLists(1);
 	glNewList(quadric_list , GL_COMPILE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glLineWidth(4.0f);
-	double bound = 5;
-	double step = 0.1;
-	for (double x = -bound ; x <= bound; x+= step) {
-		for (double y = -bound; y < bound; y+= step) {
-
-			double current_y = y;
-			double next_y = y + step;
-			double current_x = x;
-			double next_x = x + step;
-
-			if ((QuadricFunction(current_x , current_y) < 0.0) ||
-				(QuadricFunction(current_x , next_y) < 0.0) ||
-				(QuadricFunction(next_x , current_y) < 0.0) ||
-				(QuadricFunction(next_x , next_y) < 0.0)) {
-				continue;
-			}
-
-			glColor3d(0, 0 ,1);
-			glBegin(GL_QUADS);
-			glVertex3d(current_x , current_y , sqrt(QuadricFunction(current_x , current_y)));
-			glVertex3d(current_x , next_y , sqrt(QuadricFunction(current_x , next_y)));
-			glVertex3d(next_x , next_y , sqrt(QuadricFunction(next_x , next_y)));
-			glVertex3d(next_x , current_y , sqrt(QuadricFunction(next_x , current_y)));
-			glEnd();
-
-			glColor3d(0, 0, 0);
-			glBegin(GL_LINE_STRIP);
-			glVertex3d(current_x , current_y , sqrt(QuadricFunction(current_x , current_y)));
-			glVertex3d(current_x , next_y , sqrt(QuadricFunction(current_x , next_y)));
-			glVertex3d(next_x , next_y , sqrt(QuadricFunction(next_x , next_y)));
-			glVertex3d(next_x , current_y , sqrt(QuadricFunction(next_x , current_y)));
-			glEnd();
-
-			glColor3d(0, 0 ,1);
-			glBegin(GL_QUADS);
-			glVertex3d(current_x , current_y , -sqrt(QuadricFunction(current_x , current_y)));
-			glVertex3d(current_x , next_y , -sqrt(QuadricFunction(current_x , next_y)));
-			glVertex3d(next_x , next_y , -sqrt(QuadricFunction(next_x , next_y)));
-			glVertex3d(next_x , current_y , -sqrt(QuadricFunction(next_x , current_y)));
-			glEnd();
-
-			glColor3d(0, 0, 0);
-			glBegin(GL_LINE_STRIP);
-			glVertex3d(current_x , current_y , -sqrt(QuadricFunction(current_x , current_y)));
-			glVertex3d(current_x , next_y , -sqrt(QuadricFunction(current_x , next_y)));
-			glVertex3d(next_x , next_y , -sqrt(QuadricFunction(next_x , next_y)));
-			glVertex3d(next_x , current_y , -sqrt(QuadricFunction(next_x , current_y)));
-			glEnd();
-		}
-	}
+	RenderCone(1 , 1 , 1);
 	glEndList();
 
 }
@@ -130,7 +236,12 @@ void RenderObjects() {
 }
 
 void RenderObjects2() {
-	glColor3d(0, 0 ,1);
+	float ambient[] = {0, 0, 0};
+	float diffuse[] = {0, 0, 1};
+	float specular[] = {0, 0, 0};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,specular);
 	glCallList(quadric_list);
 }
 
@@ -139,6 +250,8 @@ void RenderFunction() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
+	float pos[] = {0, 0, 0};
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
 	gluLookAt(camera_x , camera_y , camera_z , looking_x , looking_y , looking_z , 0 , 1 , 0);
 
 	RenderObjects2();
