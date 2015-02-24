@@ -28,10 +28,6 @@ int quadric_list;
 
 using namespace std;
 
-double HyperboloidWithOneSheet(double x , double y) {
-	return x * x + y * y - 1;
-}
-
 double HyperboloidWithTwoSheets(double x , double y) {
 	return x * x + y * y + 1;
 }
@@ -122,26 +118,31 @@ void RenderCone(double a , double b , double c) {
 }
 
 void RenderHyperboloidWithTwoSheets(double a , double b , double c) {
-	const double pi = 3.14159265;
 	double u_step = 0.1;
 	double v_step = 0.1;
 	for (double u = -5 ; u < 5; u+= u_step) {
-		for (double v = 0; v <= pi * 2; v+= v_step) {
+		for (double v = -5; v <= 5; v+= v_step) {
 
+			if ((HyperboloidWithTwoSheets(u , v) < 0.0) ||
+			(HyperboloidWithTwoSheets(u , v + v_step) < 0.0) ||
+			(HyperboloidWithTwoSheets(u + u_step , v) < 0.0) ||
+			(HyperboloidWithTwoSheets(u + u_step , v + v_step) < 0.0)) {
+				continue;
+			}
 			Vertex3 u1 , u2 , u3 , u4;
 			Vertex3 normal;
-			u1.x = a * sinh(u) * cos(v);
-			u1.y = b * sinh(u) * sin(v);
-			u1.z = c * cosh(u);
-			u2.x = a * sinh(u) * cos(v + v_step);
-			u2.y = b * sinh(u) * sin(v + v_step);
-			u2.z = c * cosh(u);
-			u3.x = a * sinh(u + u_step) * cos(v + v_step);
-			u3.y = b * sinh(u + u_step) * sin(v + v_step);
-			u3.z = c * cosh(u + u_step);
-			u4.x = a * sinh(u + u_step) * cos(v);
-			u4.y = b * sinh(u + u_step) * sin(v);
-			u4.z = c * cosh(u + u_step);
+			u1.x = a * u;
+			u1.y = b * v;
+			u1.z = c * sqrt(HyperboloidWithTwoSheets(u1.x , u1.y));
+			u2.x = a * u;
+			u2.y = b * (v + v_step);
+			u2.z = c * sqrt(HyperboloidWithTwoSheets(u2.x , u2.y));
+			u3.x = a * (u + u_step);
+			u3.y = b * (v + v_step);
+			u3.z = c * sqrt(HyperboloidWithTwoSheets(u3.x , u3.y));
+			u4.x = a * (u + u_step);
+			u4.y = b * v;
+			u4.z = c * sqrt(HyperboloidWithTwoSheets(u4.x , u4.y));
 
 			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
 			glBegin(GL_TRIANGLES);
@@ -152,6 +153,27 @@ void RenderHyperboloidWithTwoSheets(double a , double b , double c) {
 			glEnd();
 
 			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+
+			u1.z *= -1;
+			u2.z *= -1;
+			u3.z *= -1;
+			u4.z *= -1;
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u3 - u2 , u2 - u1));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u4 - u3 , u3 - u1));
 			glBegin(GL_TRIANGLES);
 			glNormal3d(normal.x, normal.y, normal.z);
 			glVertex3d(u1.x, u1.y, u1.z);
@@ -212,7 +234,7 @@ void Init() {
 	quadric_list = glGenLists(1);
 	glNewList(quadric_list , GL_COMPILE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	RenderCone(1 , 1 , 1);
+	RenderHyperboloidWithTwoSheets(1 , 1 , 1);
 	glEndList();
 
 }
