@@ -24,9 +24,29 @@ int quadric_list;
 
 using namespace std;
 
+double Cone(double x , double y) {
+	return x * x + y * y;
+}
+
+double Paraboloid(double x , double y) {
+	return x * x * x * x + y * y * y * y + 2 * x * x * y * y;
+}
+
+double Sphere(double x , double y) {
+	return 1 - x * x - y * y;
+}
+
+double HiperboloidWithOneSheet(double x , double y) {
+	return x * x + y * y - 1;
+}
+
+double HiperboloidWithTwoSheets(double x , double y) {
+	return x * x + y * y + 1;
+}
+
 double QuadricFunction(double x , double y) {
 	// z*z = ?
-	return x * x + y * y - 1;
+	return Cone(x , y);
 }
 
 void Init() {
@@ -36,7 +56,7 @@ void Init() {
 	quadric_list = glGenLists(1);
 	glNewList(quadric_list , GL_COMPILE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glLineWidth(2.0f);
+	glLineWidth(4.0f);
 	double bound = 5;
 	double step = 0.1;
 	for (double x = -bound ; x <= bound; x+= step) {
