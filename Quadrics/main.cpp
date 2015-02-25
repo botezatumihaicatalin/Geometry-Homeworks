@@ -184,6 +184,48 @@ void RenderHyperboloidWithTwoSheets(double a , double b , double c) {
 	}
 }
 
+void RenderHyperboloidWithOneSheetGenerators(double a , double b, double c) {
+	double lambda_step = 0.1;
+	double u_step = 0.1;
+	glLineWidth(5.0);
+
+	for (double lambda = -3; lambda < 3; lambda += lambda_step) {
+		for (double u = -5; u < 5; u += u_step) {
+			Vertex3 v1 , v2;
+			v1.x = u;
+			v1.y = (2 * v1.x / a - lambda - 1 / lambda) * b / (lambda - 1 / lambda);
+			v1.z = ((1 + v1.y / b) * lambda - v1.x / a) * c;
+
+			v2.x = u + u_step;
+			v2.y = (2 * v2.x / a - lambda - 1 / lambda) * b / (lambda - 1 / lambda);
+			v2.z = ((1 + v2.y / b) * lambda - v2.x / a) * c;
+
+			glBegin(GL_LINES);
+			glVertex3d(v1.x, v1.y, v1.z);
+			glVertex3d(v2.x, v2.y, v2.z);
+			glEnd();
+		}
+	}
+
+	for (double lambda = -3; lambda < 3; lambda += lambda_step) {
+		for (double u = -5; u < 5 ; u += u_step) {
+			Vertex3 v1 , v2;
+			v1.x = u;
+			v1.y = (2 * v1.x / a - lambda - 1 / lambda) * b / (lambda - 1 / lambda);
+			v1.z = ((1 - v1.y / b) / lambda - v1.x / a) * c;
+
+			v2.x = u + u_step;
+			v2.y = (2 * v2.x / a - lambda - 1 / lambda) * b / (lambda - 1 / lambda);
+			v2.z = ((1 - v2.y / b) / lambda - v2.x / a) * c;
+
+			glBegin(GL_LINES);
+			glVertex3d(v1.x, v1.y, v1.z);
+			glVertex3d(v2.x, v2.y, v2.z);
+			glEnd();
+		}
+	}
+}
+
 void RenderHyperboloidWithOneSheet(double a , double b , double c) {
 	const double pi = 3.14159265;
 	double u_step = 0.1;
@@ -223,6 +265,89 @@ void RenderHyperboloidWithOneSheet(double a , double b , double c) {
 			glEnd();
 		}
 	}
+
+}
+
+void RenderHyperboloidParaboloidGenerators(double a , double b , double c) {
+	double u_step = 0.1;
+	double lambda_step = 0.1;
+	glLineWidth(5.0);
+
+	for (double lambda = -1; lambda < 1; lambda += lambda_step) {
+		for (double u = -1; u < 1 ; u += u_step) {
+			Vertex3 v1 , v2;
+			v1.x = u;
+			v1.y = b * (v1.x / a -  lambda / c);
+			v1.z = (v1.x / a + v1.y / b) * lambda;
+
+			v2.x = u + u_step;
+			v2.y = b * (v2.x / a -  lambda / c);
+			v2.z = (v2.x / a + v2.y / b) * lambda;
+
+			glBegin(GL_LINES);
+			glVertex3d(v1.x, v1.y, v1.z);
+			glVertex3d(v2.x, v2.y, v2.z);
+			glEnd();
+		}
+	}
+
+	for (double lambda = -1; lambda < 1; lambda += lambda_step) {
+			for (double u = -1; u < 1 ; u += u_step) {
+			Vertex3 v1 , v2;
+			v1.x = u;
+			v1.y = b * (lambda / c  - v1.x / a);
+			v1.z = (v1.x / a - v1.y / b) * lambda;
+
+			v2.x = u + u_step;
+			v2.y = b * (lambda / c  - v2.x / a);
+			v2.z = (v2.x / a - v2.y / b) * lambda;
+
+			glBegin(GL_LINES);
+			glVertex3d(v1.x, v1.y, v1.z);
+			glVertex3d(v2.x, v2.y, v2.z);
+			glEnd();
+		}
+	}
+}
+
+void RenderHyperboloidParaboloid(double a , double b , double c) {
+	double u_step = 0.1;
+	double v_step = 0.1;
+	for (double u = -1 ; u < 1; u+= u_step) {
+		for (double v = -1; v <= 1; v+= v_step) {
+
+			Vertex3 u1 , u2 , u3 , u4;
+			Vertex3 normal;
+			u1.x = u;
+			u1.y = v;
+			u1.z = c * ( u * u / a * a - v * v / b * b);
+			u2.x = u;
+			u2.y = v + v_step;
+			u2.z = c * ( u * u / a * a - (v + v_step)* (v + v_step) / b * b);
+			u3.x = u + u_step;
+			u3.y = v + v_step;
+			u3.z = c * ( (u + u_step) * (u + u_step) / a * a - (v + v_step)* (v + v_step) / b * b);
+			u4.x = u + u_step;
+			u4.y = v;
+			u4.z = c * ( (u + u_step) * (u + u_step) / a * a - v * v / b * b);
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u2 , u2 - u3));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u2.x, u2.y, u2.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glEnd();
+
+			normal = Vertex3::Normalize(Vertex3::Cross(u1 - u3 , u3 - u4));
+			glBegin(GL_TRIANGLES);
+			glNormal3d(normal.x, normal.y, normal.z);
+			glVertex3d(u1.x, u1.y, u1.z);
+			glVertex3d(u3.x, u3.y, u3.z);
+			glVertex3d(u4.x, u4.y, u4.z);
+			glEnd();
+		}
+	}
 }
 
 void Init() {
@@ -234,7 +359,12 @@ void Init() {
 	quadric_list = glGenLists(1);
 	glNewList(quadric_list , GL_COMPILE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	RenderHyperboloidWithTwoSheets(1 , 1 , 1);
+	RenderHyperboloidWithOneSheet(1 , 1 , 1);
+	float prev_diffuse[4];
+	glGetMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, prev_diffuse);
+	float new_diffuse[4] = {0.0, 0.0, 0.0, 1.0};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, new_diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, prev_diffuse);
 	glEndList();
 
 }
