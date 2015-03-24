@@ -1,10 +1,10 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-OBJS =		main.o vertex3.o
+OBJS =		ShadersGLEW.o HotColdShading.o AbstractRenderingContext.o
 
-LIBS =		-lfreeglut -lglu32 -lopengl32 
+LIBS =		-lglew32 -lfreeglut -lglu32 -lopengl32
 
-TARGET =	Quadrics.exe
+TARGET =	ShadersGLEW.exe
 
 $(TARGET):	$(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
