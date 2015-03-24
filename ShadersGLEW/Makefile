@@ -1,6 +1,6 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-OBJS =		ShadersGLEW.o HotColdShading.o AbstractRenderingContext.o
+OBJS =		ShadersGLEW.o HotColdShading.o GoraudShading.o AbstractRenderingContext.o
 
 LIBS =		-lglew32 -lfreeglut -lglu32 -lopengl32
 

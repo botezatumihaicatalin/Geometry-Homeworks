@@ -1,4 +1,5 @@
 #include "HotColdShading.h"
+#include "GoraudShading.h"
 
 AbstractRenderingContext * context;
 
@@ -16,9 +17,9 @@ int main(int argc , char ** argv) {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100,5);
 	glutInitWindowSize(1024,768);
-	glutCreateWindow("Lighthouse 3D");
+	glutCreateWindow("Shading");
 
-	context = new HotColdShading();
+	context = new GoraudShading();
 
 	glutDisplayFunc(RenderFunction);
 	glutIdleFunc(RenderFunction);
