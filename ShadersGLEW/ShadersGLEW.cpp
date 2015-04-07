@@ -1,5 +1,6 @@
 #include "HotColdShading.h"
 #include "GoraudShading.h"
+#include "TwoColorsShading.h"
 
 AbstractRenderingContext * context;
 
@@ -19,7 +20,7 @@ int main(int argc , char ** argv) {
 	glutInitWindowSize(1024,768);
 	glutCreateWindow("Shading");
 
-	context = new GoraudShading();
+	context = new TwoColorsShading();
 
 	glutDisplayFunc(RenderFunction);
 	glutIdleFunc(RenderFunction);

@@ -16,8 +16,8 @@ HotColdShading::HotColdShading() : AbstractRenderingContext("Shaders/hotCold.ver
 
 	GLint hot_color_location = glGetUniformLocation(GetOpenglProgram(), "hotColor");
 	GLint cold_color_location = glGetUniformLocation(GetOpenglProgram(), "coldColor");
-	glUniform4f(hot_color_location, 1.0, 0.0, 1.0, 1.0);
-	glUniform4f(cold_color_location, 0.1, 0.1, 0.1, 1.0);
+	glUniform4f(hot_color_location, 0.0, 0.0, 1.0, 1.0);
+	glUniform4f(cold_color_location, 1.0, 0.0, 0.0, 1.0);
 
 }
 

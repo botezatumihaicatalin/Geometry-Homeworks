@@ -15,6 +15,5 @@ void main(void) {
    	vec4 diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse * max(dot(normal,light_dir), 0.0);
    	vec4 specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * pow(max(dot(reflection_dir,e),0.0),0.3*specPow);
    	
-   	vertex_color = clamp(ambient + diffuse + specular, 0.0, 1.0);
-	
+   	vertex_color = clamp(ambient + diffuse + specular, 0.0, 1.0);	
 }
