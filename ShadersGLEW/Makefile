@@ -1,8 +1,8 @@
 CXXFLAGS =	-O2 -g -Wall -fmessage-length=0
 
-OBJS =		ShadersGLEW.o TwoColorsShading.o HotColdShading.o GoraudShading.o AbstractRenderingContext.o
+OBJS =		ShadersGLEW.o TwoColorsShading.o CubeMapReflShading.o HotColdShading.o GoraudShading.o AbstractRenderingContext.o
 
-LIBS =		-lglew32 -lfreeglut -lglu32 -lopengl32
+LIBS =		-lSOIL -lglew32 -lfreeglut -lglu32 -lopengl32
 
 TARGET =	ShadersGLEW.exe
 

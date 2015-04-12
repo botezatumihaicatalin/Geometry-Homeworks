@@ -19,7 +19,7 @@ class AbstractRenderingContext {
 private:
 	GLuint opengl_program_;
 	string loaded_vertex_shader_;
-	string loaded_fragment_shader;
+	string loaded_fragment_shader_;
 
 public:
 	AbstractRenderingContext(const string & vertex_shader , const string & fragment_shader);
