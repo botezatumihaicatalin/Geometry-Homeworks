@@ -56,6 +56,21 @@ CubeMapReflShading::CubeMapReflShading() : AbstractRenderingContext("Shaders/ref
 		SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
 	);
 	cube_map_texture_id_ = tex_cube;
+
+	tex_cube = SOIL_load_OGL_cubemap
+	(
+		faces[0],
+		faces[1],
+		faces[3],
+		faces[2],
+		faces[5],
+		faces[4],
+		SOIL_LOAD_RGB,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
+	);
+
+	cube_map_env_texture_id_ = tex_cube;
 }
 
 void CubeMapReflShading::Render() {
@@ -68,14 +83,14 @@ void CubeMapReflShading::Render() {
 	double tilt[3] = {0.0, 1.0, 0.0};
 	gluLookAt(eyePos[0], eyePos[1], eyePos[2], lookPos[0], lookPos[1], lookPos[2], tilt[0], tilt[1], tilt[2]);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_env_texture_id_);
 	glutSolidCube(10);
 
 	glTranslated(0 , 0 , -3);
 	glRotated(angle, 1, 1, 0);
 	angle += 0.1;
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_texture_id_);
 	glutSolidTeapot(1);
 
 	glutSwapBuffers();

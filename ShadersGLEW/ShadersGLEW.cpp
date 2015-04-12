@@ -3,7 +3,7 @@
 #include "TwoColorsShading.h"
 #include "CubeMapReflShading.h"
 
-AbstractRenderingContext * context;
+static AbstractRenderingContext * context;
 
 void ResizeFunction(int width , int height) {
 	context->Resize(width, height);

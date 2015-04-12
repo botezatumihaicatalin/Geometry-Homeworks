@@ -13,6 +13,7 @@
 class CubeMapReflShading: public AbstractRenderingContext {
 private:
 	GLuint cube_map_texture_id_;
+	GLuint cube_map_env_texture_id_;
 public:
 	CubeMapReflShading();
 	void Render();
