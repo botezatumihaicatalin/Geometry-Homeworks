@@ -10,14 +10,14 @@
 
 #include "AbstractRenderingContext.h"
 
-class CubeMapReflShading: public AbstractRenderingContext {
+class CubeMapReflectShading: public AbstractRenderingContext {
 private:
 	GLuint cube_map_texture_id_;
 	GLuint cube_map_env_texture_id_;
 public:
-	CubeMapReflShading();
+	CubeMapReflectShading();
 	void Render();
-	virtual ~CubeMapReflShading();
+	virtual ~CubeMapReflectShading();
 };
 
 #endif /* SHADERS_CUBEMAPREFLSHADING_H_ */

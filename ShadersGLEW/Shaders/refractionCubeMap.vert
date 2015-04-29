@@ -1,5 +1,6 @@
 varying vec3 Normal;
 varying vec3 EyeDir;
+
 uniform samplerCube cubeMap;
 
 void main()

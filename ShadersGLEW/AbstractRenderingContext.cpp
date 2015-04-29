@@ -8,6 +8,7 @@
 #include "AbstractRenderingContext.h"
 #include <fstream>
 #include <sstream>
+#include <math.h>
 
 using namespace std;
 
@@ -52,6 +53,8 @@ void PrintShaderInfoLog(const GLuint & shader, const string & file_path) {
 	}
 }
 
+
+
 AbstractRenderingContext::AbstractRenderingContext(const string & vertex_shader_file_path , const string & fragment_shader_file_path) {
 
 	glewInit();
@@ -85,8 +88,20 @@ AbstractRenderingContext::AbstractRenderingContext(const string & vertex_shader_
 
 	opengl_program_ = p;
 
+	eye_x_ = eye_y_ = eye_z_ = 0;
+	looking_x_ = looking_y_ = 0;
+	looking_z_ = -6;
+	angle_x_ = 0;
+	angle_y_ = 0;
+	last_mouse_x_ = last_mouse_y_ = -1;
+
+
 	//Load the specified
 
+}
+
+void AbstractRenderingContext::BindCamera() {
+	gluLookAt(eye_x_, eye_y_, eye_z_, looking_x_, looking_y_, looking_z_, 0, 1, 0);
 }
 
 void AbstractRenderingContext::Resize(int width, int height) {
@@ -99,6 +114,46 @@ void AbstractRenderingContext::Resize(int width, int height) {
 	glViewport(0, 0, width, height);
 	gluPerspective(45, ratio, 1, 1000);
 	glMatrixMode(GL_MODELVIEW);
+}
+
+void AbstractRenderingContext::MouseMotion(int x, int y) {
+	if (last_mouse_x_ == -1 && last_mouse_y_ == -1) {
+		last_mouse_x_ = x;
+		last_mouse_y_ = y;
+		return;
+	}
+	looking_x_ = eye_x_ + sin(angle_x_);
+	looking_z_ = eye_z_ + cos(angle_x_);
+	looking_y_ = eye_y_ + sin(angle_y_);
+	angle_x_ += (last_mouse_x_ - x) / 100.0;
+	angle_y_ -= (last_mouse_y_ - y) / 100.0;
+	last_mouse_x_ = x;
+	last_mouse_y_ = y;
+}
+
+void AbstractRenderingContext::KeyboardFunc(char key, int x, int y) {
+	double looking_direction_x = looking_x_ - eye_x_;
+	double looking_direction_y = looking_y_ - eye_y_;
+	double looking_direction_z = looking_z_ - eye_z_;
+	double len = sqrt(looking_direction_x * looking_direction_x + looking_direction_y * looking_direction_y + looking_direction_z * looking_direction_z);
+	len *= 10;
+	looking_direction_x /= len;
+	looking_direction_y /= len;
+	looking_direction_z /= len;
+	if (key == 'w')
+	{
+		eye_z_ += looking_direction_z;
+		eye_x_ += looking_direction_x;
+		looking_x_ += looking_direction_x;
+		looking_z_ += looking_direction_z;
+	}
+	else if (key == 's')
+	{
+		eye_z_ -= looking_direction_z;
+		eye_x_ -= looking_direction_x;
+		looking_x_ -= looking_direction_x;
+		looking_z_ -= looking_direction_z;
+	}
 }
 
 AbstractRenderingContext::~AbstractRenderingContext() {

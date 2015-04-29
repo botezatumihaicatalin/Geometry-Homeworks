@@ -5,14 +5,14 @@
  *      Author: Botezatu
  */
 
-#include "CubeMapReflShading.h"
+#include "CubeMapReflectShading.h"
 #include <SOIL.h>
 #include <vector>
 #include <iostream>
 
 using namespace std;
 
-CubeMapReflShading::CubeMapReflShading() : AbstractRenderingContext("Shaders/reflectionCubeMap.vert", "Shaders/reflectionCubeMap.frag") {
+CubeMapReflectShading::CubeMapReflectShading() : AbstractRenderingContext("Shaders/reflectionCubeMap.vert", "Shaders/reflectionCubeMap.frag") {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -27,14 +27,6 @@ CubeMapReflShading::CubeMapReflShading() : AbstractRenderingContext("Shaders/ref
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_color);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specular_color);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_color);
-
-	double eyePos[3] = {0.0, 0.0, 0.0};
-	double lookPos[3] = {0.0, 0.0, -3.0};
-	double tilt[3] = {1.0, 0.0, 0.0};
-	gluLookAt(eyePos[0], eyePos[1], eyePos[2], lookPos[0], lookPos[1], lookPos[2], tilt[0], tilt[1], tilt[2]);
-
-	GLint eye_pos_location = glGetUniformLocation(GetOpenglProgram(), "fvEyePosition");
-	glUniform3f(eye_pos_location, eyePos[0], eyePos[1], eyePos[2]);
 
 	vector<const GLchar*> faces;
 	faces.push_back("Textures/right.jpg");
@@ -61,8 +53,8 @@ CubeMapReflShading::CubeMapReflShading() : AbstractRenderingContext("Shaders/ref
 	(
 		faces[0],
 		faces[1],
-		faces[3],
 		faces[2],
+		faces[3],
 		faces[5],
 		faces[4],
 		SOIL_LOAD_RGB,
@@ -73,30 +65,27 @@ CubeMapReflShading::CubeMapReflShading() : AbstractRenderingContext("Shaders/ref
 	cube_map_env_texture_id_ = tex_cube;
 }
 
-void CubeMapReflShading::Render() {
+void CubeMapReflectShading::Render() {
 	static double angle = 0.0;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	double eyePos[3] = {0.0, 0.0, 0.0};
-	double lookPos[3] = {0.0, 0.0, -3.0};
-	double tilt[3] = {0.0, 1.0, 0.0};
-	gluLookAt(eyePos[0], eyePos[1], eyePos[2], lookPos[0], lookPos[1], lookPos[2], tilt[0], tilt[1], tilt[2]);
+	BindCamera();
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_env_texture_id_);
-	glutSolidCube(10);
+	glutSolidCube(100);
 
 	glTranslated(0 , 0 , -3);
 	glRotated(angle, 1, 1, 0);
 	angle += 0.1;
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cube_map_texture_id_);
-	glutSolidTeapot(1);
+	glutSolidTorus(0.3,0.7,200,200);
 
 	glutSwapBuffers();
 }
 
-CubeMapReflShading::~CubeMapReflShading() {
+CubeMapReflectShading::~CubeMapReflectShading() {
 	// TODO Auto-generated destructor stub
 }
 
