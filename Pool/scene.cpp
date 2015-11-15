@@ -1,6 +1,6 @@
 #include "scene.h"
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <math.h>
 #include <cstdio>
@@ -501,6 +501,5 @@ void Scene::Render(void) {
 
     }
 
-    drawText("SALUT",600,350,30);
     glutSwapBuffers();
 }

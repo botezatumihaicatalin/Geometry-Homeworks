@@ -130,6 +130,7 @@ void InitializeWindow(int argc, char ** argv) {
 	gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
 	glShadeModel(GL_SMOOTH);
 	glutDisplayFunc(DisplayFunc);
+    glutIdleFunc(DisplayFunc);
 	glutReshapeFunc(ReshapeFunc);
 	glutMotionFunc(MouseMotionFunc);
 	glutPassiveMotionFunc(MousePassiveMotionFunc);

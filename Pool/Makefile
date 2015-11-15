@@ -1,8 +1,8 @@
-CXXFLAGS =	-O2 -g -Wall -std=c++11 -fmessage-length=0
+CXXFLAGS =	-O2 -g -Wall -std=c++11 -fmessage-length=0 -D__NO_INLINE__
 
 OBJS = main.o circle.o scene.o segment.o vector2D.o point2D.o ball.o cue.o constants.o 
 
-LIBS = -lglut32 -lglu32 -lopengl32
+LIBS = -lfreeglut -lglu32 -lopengl32
 
 TARGET = Pool.exe
 
